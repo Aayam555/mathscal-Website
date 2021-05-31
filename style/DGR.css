@@ -1,0 +1,31 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.center {
+  margin: auto;
+  display: block;
+}
+
+img {
+  margin-top: 50px;
+  width: 300px;
+}
+
+.card {
+  width: 18rem;
+  margin-top: 20px;
+  margin-left: 30px;
+  display: inline-flex;
+  text-align: center;
+}
+
+.card-title {
+  text-align: center;
+}
+
+.grade-symbol {
+  font-size: 19px;
+}
