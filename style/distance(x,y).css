@@ -30,3 +30,13 @@
 .row {
   margin-top: 10px;
 }
+
+.calculator-container{
+  width: 100%;
+  height: 500px;
+  padding-top: 20px;
+}
+
+#calculator{
+  height: 100%;
+}
