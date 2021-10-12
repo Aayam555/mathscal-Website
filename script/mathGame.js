@@ -6,8 +6,12 @@ const scoreElement = document.getElementById("score");
 const highScoreElement = document.getElementById("highScore");
 
 scoreElement.innerText = `Score: ${score}`;
-highScoreElement.innerText = `High Score: ${localStorage.getItem("mathGameScore")}`;
-
+if (localStorage.getItem("mathGameScore") == null){
+  localStorage.setItem("mathGameScore", "0");
+  highScoreElement.innerText = `High Score: 0`;
+} else{
+  highScoreElement.innerText = `High Score: ${localStorage.getItem("mathGameScore")}`;
+}
 const signs = ["+", "-", "*", "/"];
 
 function generateTwoRandomNumbers(){
@@ -59,11 +63,11 @@ function display(){
   userInputAnswer.addEventListener("input", () => {
     answerElement.innerText = userInputAnswer.value;
     if (userInputAnswer.value == answer){
+      console.log("adding score")
       score ++;
       let scoreStorage = localStorage.getItem("mathGameScore");
       if (scoreStorage == null){
         localStorage.setItem("mathGameScore", "1");
-        highScoreElement.innerText = `High Score: 0`;
       } else if (score > scoreStorage){
         localStorage.setItem("mathGameScore", Number(scoreStorage) + 1);
       }
