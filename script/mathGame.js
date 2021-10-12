@@ -63,6 +63,7 @@ function display(){
       let scoreStorage = localStorage.getItem("mathGameScore");
       if (scoreStorage == null){
         localStorage.setItem("mathGameScore", "1");
+        highScoreElement.innerText = `High Score: 0`;
       } else if (score > scoreStorage){
         localStorage.setItem("mathGameScore", Number(scoreStorage) + 1);
       }
