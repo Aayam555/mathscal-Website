@@ -16,7 +16,7 @@ img {
 
 .card {
   width: 18rem;
-  margin-top: 20px;
+  margin-top: 5rem;
   margin-left: 30px;
   display: inline-flex;
   text-align: center;
@@ -28,4 +28,10 @@ img {
 
 .grade-symbol {
   font-size: 19px;
+}
+
+#DGRNotes{
+  width: 10rem;
+  position: absolute;
+  right: 50px;
 }

@@ -4,8 +4,9 @@
 }
 
 .card{
-    box-shadow: 0px 8px 8px 1px rgba(194, 189, 189, 0.876);
+    box-shadow: 0px 8px 25px 1px rgb(224 224 224 / 88%);
     height: auto;
+    border: none;
 }
 
 .card .form-control{
