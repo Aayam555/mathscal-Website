@@ -1,3 +1,3 @@
 # Mathscal Website
 
-Website Link: https://mathscal.netlify.app
+https://mathscal.netlify.app
