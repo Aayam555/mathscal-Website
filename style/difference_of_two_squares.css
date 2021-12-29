@@ -1,0 +1,15 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.card{
+    text-align: center;
+    margin: auto;
+    width: 20rem;
+}
+
+#display-table{
+    margin-top: 20px;
+}
