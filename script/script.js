@@ -1,5 +1,5 @@
 function dark() {
-  const numberOfElm = 18;
+  const numberOfElm = 19;
 
   document.querySelector("body").style =
     "background-color: rgba(25, 25, 25, 1)";
