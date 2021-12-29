@@ -12,6 +12,8 @@
     <link rel="shortcut icon" href="../images/favicon.png" type="image/png" />
     <link rel="stylesheet" href="../style/difference_of_two_squares.css" />
     <link rel="stylesheet" href="../style/cards.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body>
@@ -22,9 +24,6 @@
             <h4 class="card-title">Difference of 2 squares</h4>
             <input type="number" class="form-control" placeholder="Enter (a²-b²)" id="difference_of_two_squares" />
             <input type="number" class="form-control" placeholder="Enter (a-b)" id="difference_of_a_and_b" />
-            <input type="number" class="form-control" placeholder="Enter low range of (a-b)"
-                id="difference_of_a_and_b" />
-            <input type="number" class="form-control" placeholder="Enter high range (a-b)" id="difference_of_a_and_b" />
             <button class="btn btn-primary" onclick="calculate()">
                 Calculate
             </button>
@@ -34,8 +33,6 @@
     <div id="display"></div>
 </body>
 <script src="../script/difference_of_two_squares.js"></script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
     crossorigin="anonymous"></script>
