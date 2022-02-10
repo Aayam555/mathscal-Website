@@ -50,16 +50,3 @@ li {
   margin-top: 10px;
   margin-left: 10px;
 }
-
-#python-module-btn{
-  margin-right: 10px;
-  margin-top: 10px;
-  margin-left: 10px;
-  color: white;
-  font-size: 15px;
-
-}
-
-#python-module-btn :hover{
-  color:white;
-}
