@@ -332,6 +332,181 @@ function showResultForAreaAndPerimeterOfCircle(){
   let r = Number(document.getElementById("rOfCircle").value);
   let result = calculateAreaAndPerimeterOfCircle(r);
 
-  console.log(1/2 * result.area)
   document.getElementById("displayResult").innerText = `Area of circle = ${result.area}, Perimeter of circle = ${result.perimeter}, Area of semicircle = ${1/2 * result.area}, Perimeter of semicircle = ${1/2 * result.perimeter + 2*r}`;
+}
+
+// Area of pathways running inside rectangle
+function calculateAreaOfPathwaysRunningInside(l, b, d){
+  return 2*d*(l + b + 2*d);
+}
+
+function showCardForAreaOfPathwaysRunningInside(){
+  container.innerHTML = createHtmlTemplate(
+    {
+      title: "Area of Pathways Running Inside",
+      inputs: [
+        {
+          id: "lOfPathwaysRunningInside",
+          placeholder: "Enter length(l)"
+        },
+        {
+          id: "bOfPathwaysRunningInside",
+          placeholder: "Enter breadth(b)"
+        },
+        {
+          id: "dOfPathwaysRunningInside",
+          placeholder: "Enter uniform width(d)"
+        }
+      ],
+        functionName: "showResultForAreaOfPathwaysRunningInside"
+    }
+  );
+}
+
+function showResultForAreaOfPathwaysRunningInside(){
+  let l = Number(document.getElementById("lOfPathwaysRunningInside").value);
+  let b = Number(document.getElementById("bOfPathwaysRunningInside").value);
+  let d = Number(document.getElementById("dOfPathwaysRunningInside").value);
+  let result = calculateAreaOfPathwaysRunningInside(l, b, d);
+
+  document.getElementById("displayResult").innerText = `Area = ${result}`;
+}
+
+
+// Area of pathways running outside rectangle
+function calculateAreaOfPathwaysRunningOutside(l, b, d){
+  return 2*d*(l + b - 2*d);
+}
+
+function showCardForAreaOfPathwaysRunningOutside(){
+  container.innerHTML = createHtmlTemplate(
+    {
+      title: "Area of Pathways Running Outside",
+      inputs: [
+        {
+          id: "lOfPathwaysRunningOutside",
+          placeholder: "Enter length(l)"
+        },
+        {
+          id: "bOfPathwaysRunningOutside",
+          placeholder: "Enter breadth(b)"
+        },
+        {
+          id: "dOfPathwaysRunningOutside",
+          placeholder: "Enter uniform width(d)"
+        }
+      ],
+        functionName: "showResultForAreaOfPathwaysRunningOutside"
+    }
+  );
+}
+
+function showResultForAreaOfPathwaysRunningOutside(){
+  let l = Number(document.getElementById("lOfPathwaysRunningOutside").value);
+  let b = Number(document.getElementById("bOfPathwaysRunningOutside").value);
+  let d = Number(document.getElementById("dOfPathwaysRunningOutside").value);
+  let result = calculateAreaOfPathwaysRunningOutside(l, b, d);
+
+  document.getElementById("displayResult").innerText = `Area = ${result}`;
+}
+
+// Area of path's crossing each other perpendicularly
+function calculateAreaOfPathCrossingEachOtherPerpendicularly(l, b, d){
+  return d*(l + b - d);
+}
+
+function showCardForAreaOfPathCrossingEachOtherPerpendicularly(){
+  container.innerHTML = createHtmlTemplate(
+    {
+      title: "Area of path's crossing each other perpendicularly",
+      inputs: [
+        {
+          id: "lOfPathCrossingEachOtherPerpendicularly",
+          placeholder: "Enter length(l)"
+        },
+        {
+          id: "bOfPathCrossingEachOtherPerpendicularly",
+          placeholder: "Enter breadth(b)"
+        },
+        {
+          id: "dOfPathCrossingEachOtherPerpendicularly",
+          placeholder: "Enter uniform width(d)"
+        }
+      ],
+        functionName: "showResultForAreaOfPathwaysRunningOutside"
+    }
+  );
+}
+
+function showResultForAreaOfPathwaysRunningOutside(){
+  let l = Number(document.getElementById("lOfPathCrossingEachOtherPerpendicularly").value);
+  let b = Number(document.getElementById("bOfPathCrossingEachOtherPerpendicularly").value);
+  let d = Number(document.getElementById("dOfPathCrossingEachOtherPerpendicularly").value);
+  let result = calculateAreaOfPathCrossingEachOtherPerpendicularly(l, b, d);
+
+  document.getElementById("displayResult").innerText = `Area = ${result}`;
+}
+
+// Area of path running outside a circular field
+function calculateAreaOfPathRunningOutsideCircularField(r, d){
+  return Math.PI * d * (2*r + d);
+}
+
+function showCardForAreaOfPathRunningOutsideCircularField(){
+  container.innerHTML = createHtmlTemplate(
+    {
+      title: "Area of path running outside a circular field",
+      inputs: [
+        {
+          id: "rOfPathRunningOutsideCircularField",
+          placeholder: "Enter radius(r)"
+        },
+        {
+          id: "dOfPathRunningOutsideCircularField",
+          placeholder: "Enter uniform width(d)"
+        }
+      ],
+        functionName: "showResultForAreaOfPathRunningOutsideCircularField"
+    }
+  );
+}
+
+function showResultForAreaOfPathRunningOutsideCircularField(){
+  let r = Number(document.getElementById("rOfPathRunningOutsideCircularField").value);
+  let d = Number(document.getElementById("dOfPathRunningOutsideCircularField").value);
+  let result = calculateAreaOfPathRunningOutsideCircularField(r, d);
+
+  document.getElementById("displayResult").innerText = `Area = ${result}`;
+}
+
+// Area of path running outside a circular field
+function calculateAreaOfPathRunningInsideCircularField(r, d){
+  return Math.PI * d * (2*r - d);
+}
+
+function showCardForAreaOfPathRunningInsideCircularField(){
+  container.innerHTML = createHtmlTemplate(
+    {
+      title: "Area of path running inside a circular field",
+      inputs: [
+        {
+          id: "rOfPathRunningInsideCircularField",
+          placeholder: "Enter radius(r)"
+        },
+        {
+          id: "dOfPathRunningInsideCircularField",
+          placeholder: "Enter uniform width(d)"
+        }
+      ],
+        functionName: "showResultForAreaOfPathRunningInsideCircularField"
+    }
+  );
+}
+
+function showResultForAreaOfPathRunningOutsideCircularField(){
+  let r = Number(document.getElementById("rOfPathRunningInsideCircularField").value);
+  let d = Number(document.getElementById("dOfPathRunningInsideCircularField").value);
+  let result = calculateAreaOfPathRunningInsideCircularField(r, d);
+
+  document.getElementById("displayResult").innerText = `Area = ${result}`;
 }
