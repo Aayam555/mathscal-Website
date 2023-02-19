@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="google-site-verification"
+      content="7oZ9OXMg8MeJq6pJzxPGhjH8o83HTgkVD9Di-dzEQ4o"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <title>Math Calculation</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="../images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="../style/massConverter.css" />
+    <link rel="stylesheet" href="../style/cards.css" />
+  </head>
+
+  <body>
+    <a class="btn btn-outline-dark" href="../index.html" id="home">Home</a>
+    <img src="../images/massUnitConverter.png" class="center" alt="image" />
+
+    <!-- kg to other units -->
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">Kg &rarr; g</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in kg"
+          type="number"
+          id="kgtog"
+        />
+        <h4 id="displaykgtog"></h4>
+        <button class="btn btn-primary" onclick="kgtog()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">Kg &rarr; cg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in kg"
+          type="number"
+          id="kgtocg"
+        />
+        <h4 id="displaykgtocg"></h4>
+        <button class="btn btn-primary" onclick="kgtocg()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">Kg &rarr; mg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in kg"
+          type="number"
+          id="kgtomg"
+        />
+        <h4 id="displaykgtomg"></h4>
+        <button class="btn btn-primary" onclick="kgtomg()">Convert</button>
+      </div>
+    </div>
+
+    <!-- g ko other units -->
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">g &rarr; kg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in g"
+          type="number"
+          id="gtokg"
+        />
+        <h4 id="displaygtokg"></h4>
+        <button class="btn btn-primary" onclick="gtokg()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">g &rarr; cg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in g"
+          type="number"
+          id="gtocg"
+        />
+        <h4 id="displaygtocg"></h4>
+        <button class="btn btn-primary" onclick="gtocg()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">g &rarr; mg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in g"
+          type="number"
+          id="gtomg"
+        />
+        <h4 id="displaygtomg"></h4>
+        <button class="btn btn-primary" onclick="gtomg()">Convert</button>
+      </div>
+    </div>
+
+    <!-- cg to other units -->
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">cg &rarr; g</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in cg"
+          type="number"
+          id="cgtog"
+        />
+        <h4 id="displaycgtog"></h4>
+        <button class="btn btn-primary" onclick="cgtog()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">cg &rarr; kg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in cg"
+          type="number"
+          id="cgtokg"
+        />
+        <h4 id="displaycgtokg"></h4>
+        <button class="btn btn-primary" onclick="cgtokg()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">cg &rarr; mg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in cg"
+          type="number"
+          id="cgtomg"
+        />
+        <h4 id="displaycgtomg"></h4>
+        <button class="btn btn-primary" onclick="cgtomg()">Convert</button>
+      </div>
+    </div>
+
+    <!-- mg to other units -->
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">mg &rarr; g</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in mg"
+          type="number"
+          id="mgtog"
+        />
+        <h4 id="displaymgtog"></h4>
+        <button class="btn btn-primary" onclick="mgtog()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">mg &rarr; cg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in mg"
+          type="number"
+          id="mgtocg"
+        />
+        <h4 id="displaymgtocg"></h4>
+        <button class="btn btn-primary" onclick="mgtocg()">Convert</button>
+      </div>
+    </div>
+
+    <div class="card center">
+      <div class="card-body">
+        <h4 class="heading">mg &rarr; kg</h4>
+        <input
+          class="form-control"
+          placeholder="Enter mass in mg"
+          type="number"
+          id="mgtokg"
+        />
+        <h4 id="displaymgtokg"></h4>
+        <button class="btn btn-primary" onclick="mgtokg()">Convert</button>
+      </div>
+    </div>
+  </body>
+  <script src="../script/massConverter.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+    crossorigin="anonymous"
+  ></script>
+</html>

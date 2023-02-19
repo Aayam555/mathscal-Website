@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <title>Midpoint of coordinates</title>
+    <link rel="shortcut icon" href="../images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="../style/midpoint.css" />
+    <link rel="stylesheet" href="../style/cards.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+      .form-control {
+        width: 15rem !important;
+        margin-left: 10px;
+      }
+      h4 {
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a class="btn btn-outline-dark" href="../index.html" id="home">Home</a>
+    <h3>\[\text{midpoint} = \left(\frac{x_1+x_2}{2}, \frac{y_1+y_2}{2}\right)\]</h3>
+    <div class="card center" style="width: 20rem">
+      <div class="card-body">
+        <h4 class="card-title">Calculate Midpoint</h4>
+        <div class="row">
+          <h4>x<sub>1</sub>=</h4>
+          <input
+            class="form-control"
+            id="x1"
+            placeholder="Enter Value"
+            type="number"
+          />
+        </div>
+        <div class="row">
+          <h4>y<sub>1</sub>=</h4>
+          <input
+            class="form-control"
+            id="y1"
+            placeholder="Enter Value"
+            type="number"
+          />
+        </div>
+        <div class="row">
+          <h4>x<sub>2</sub>=</h4>
+          <input
+            class="form-control"
+            id="x2"
+            placeholder="Enter Value"
+            type="number"
+          />
+        </div>
+        <div class="row">
+          <h4>y<sub>2</sub>=</h4>
+          <input
+            class="form-control"
+            id="y2"
+            placeholder="Enter Value"
+            type="number"
+          />
+        </div>
+        <hr />
+        <h3 id="display"></h3>
+        <button class="btn btn-primary" onclick="midpoint()">Calculate</button>
+      </div>
+    </div>
+
+    <script src="../script/midpoint.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

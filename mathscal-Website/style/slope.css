@@ -1,0 +1,22 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.center {
+  margin: auto;
+  display: block;
+}
+
+#home {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.card {
+  width: 20rem;
+}
+
+.card-title {
+  text-align: center;
+}

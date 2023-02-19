@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="google-site-verification" content="7oZ9OXMg8MeJq6pJzxPGhjH8o83HTgkVD9Di-dzEQ4o" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <title>Math Calculation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="style/style.css">
+  <style>
+    .container {
+      box-shadow: 0px 8px 8px 1px rgba(194, 189, 189, 0.876);
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <ul class="nav nav-pills">
+    <li class="nav-item">
+      <a href="index.html"><img src="images/logo.jpg" alt="logo" id="logo"></a>
+    </li>
+    <h3 id="creator">By Aayam Shrestha</h3>
+    <hr>
+    <button class="btn btn-dark" id="dark" onclick="dark()">Dark Mode</button>
+    <div class="container">
+      <input id="search" class="form-control mr-sm-2" size="20" type="search" type="text" id="myInput"
+        onkeyup="myFunction()" placeholder="Search for calculations" title="Search">
+      <div class="list-group" id="myUL">
+        <li><a class="list-group-item list-group-item-action changeColor"
+            href="pages/PythagoreanTheorem.html">Pythagorean
+            Theorem</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/power.html">Power of Numbers</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/distance(x,y).html">Distance of
+            Coordinates</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/sumOfAngle.html">Sum of Interior
+            Angles
+            of a Polygon</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/randomNum.html">Generate Random
+            Numbers</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/calculator.html">Calculator</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/tempConverter.html">Temperature
+            Scale
+            Converter</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/midpoint.html">Midpoint of
+            Coordinates</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/emi.html">EMI Calculator</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor"
+            href="pages/cumulativeFrequency.html">Cumulative
+            Frequency</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/slope.html">Slope of
+            Coordinates</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/mean.html">Mean Calculator</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor"
+            href="pages/multiplicationTable.html">Multiplication Table Generator</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/massConverter.html">Mass
+            Converter</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/primeChecker.html">Prime
+            Checker</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/DGR.html">Degree Grade Radian
+            Converter</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/quadraticEquation.html">Quadratic
+            Equation Solver</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/mathGame.html">Math Game</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/regularPolygons.html">Regular
+            Polygons</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor"
+            href="pages/pythagoreanTriples.html">Pythagorean Triples</a></li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="pages/mensuration.html">Mensuration</a>
+        </li>
+        <li><a class="list-group-item list-group-item-action changeColor" href="./latex/golden_connection.pdf">The
+            Golden Connection</a></li>
+      </div>
+
+    </div>
+
+    <script>
+      function myFunction() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+          a = li[i].getElementsByTagName("a")[0];
+          txtValue = a.textContent || a.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+          } else {
+            li[i].style.display = "none";
+          }
+        }
+      }
+    </script>
+
+</body>
+<script src="script/script.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+  integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+  integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+</html>

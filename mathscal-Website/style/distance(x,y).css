@@ -1,0 +1,42 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+}
+
+.card {
+  margin-top: 50px;
+}
+
+.card-title {
+  text-align: center;
+}
+
+.btn {
+  margin-top: 10px;
+}
+
+#home {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.row {
+  margin-top: 10px;
+}
+
+.calculator-container{
+  width: 100%;
+  height: 500px;
+  padding-top: 20px;
+}
+
+#calculator{
+  height: 100%;
+}

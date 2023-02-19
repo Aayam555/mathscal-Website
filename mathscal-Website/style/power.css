@@ -1,0 +1,37 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+
+.container{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.card{
+    padding: 16px;
+    padding-bottom: 10px;
+}
+
+button{
+    margin-top: 10px;
+}
+
+#i2{
+    margin-top: 10px;
+}
+
+#home{
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.card-header{
+    background-color: white;
+}
+
+.card-header h6{
+    font-size: 1.5rem;
+}
