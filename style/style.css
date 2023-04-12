@@ -4,15 +4,6 @@
   box-sizing: border-box;
 }
 
-#logo {
-  height: 50px;
-  width: 100px;
-  border-bottom: solid rgb(233, 221, 221) 1px;
-  border-radius: 10px;
-  margin-left: 5px;
-  margin-top: 5px;
-}
-
 ul.li {
   padding-top: 20px;
 }
