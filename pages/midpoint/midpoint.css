@@ -1,0 +1,27 @@
+*{
+    padding: 0px;
+    margin: 0px;
+}
+
+.center{
+    margin-right: auto;
+    margin-left: auto;
+    display: block;
+}
+
+#image{
+    margin-top: 10px;
+}
+
+.card-title{
+    text-align: center;
+}
+
+.btn{
+    margin-top: 10px;
+}
+
+#home{
+    margin-top: 10px;
+    margin-left: 10px;
+}

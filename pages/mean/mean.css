@@ -1,0 +1,34 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 20rem;
+  margin: auto;
+  text-align: center;
+  margin-top: 20px;
+}
+
+img {
+  margin: auto;
+  display: block;
+}
+
+.form-control {
+  width: 244px !important;
+}
+
+h4 {
+  margin-top: 12px;
+  margin-left: 12px;
+}
+
+input {
+  margin-left: 10px;
+}
+
+#number {
+  margin-left: 17px;
+}

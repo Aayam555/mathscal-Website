@@ -1,0 +1,33 @@
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.card-body{
+  padding: 0;
+  text-align: center;
+}
+
+.card{
+  width: 20rem;
+  margin: auto;
+  margin-top: 5rem;
+  height: 10rem;
+  padding: 0;
+}
+
+
+.card span{
+  font-size: 35px;
+}
+
+.form-control{
+  margin-bottom: 1px !important;
+}
+
+.scores{
+  text-align: center;
+  margin-top: 5rem;
+  font-size: 35px;
+}

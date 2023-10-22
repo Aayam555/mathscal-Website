@@ -1,0 +1,25 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+
+.card{
+    width: 20rem;
+    margin: auto;
+    margin-top: 20px;
+}
+
+img{
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top: 20px;
+}
+
+.card-title{
+    text-align: center;
+}
+
+#display{
+    margin: 40px 20px 0 20px ;
+}
