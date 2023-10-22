@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 12.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 51448)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1" id="Layer_1" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" width="625" height="480" viewBox="0 0 625 480"
+	 style="overflow:visible;enable-background:new 0 0 625 480;" xml:space="preserve">
+<line style="fill:none;stroke:#000000;stroke-width:8;" x1="381.7" y1="360.8" x2="298.5" y2="312.7"/>
+<g>
+	<g>
+		<text transform="matrix(1 0 0 1 38.645 429.6772)" style="font-family:'Nimbus Sans L',Arial,sans-serif; font-size:121px;">R</text>
+		<text transform="matrix(1 0 0 1 208.4688 136.6772)" style="font-family:'Nimbus Sans L',Arial,sans-serif; font-size:121px;">O</text>
+		<text transform="matrix(1 0 0 1 211.8359 332.6772)" style="font-family:'Nimbus Sans L',Arial,sans-serif; font-size:121px;">C</text>
+		<text transform="matrix(1 0 0 1 378.0273 429.6772)"><tspan x="0" y="0" style="font-family:'Nimbus Sans L',Arial,sans-serif; font-size:121px;">O</tspan><tspan x="94.1" y="0" style="font-family:'Nimbus Sans L',Arial,sans-serif; font-size:121px; letter-spacing:-12;">R</tspan><tspan x="180" y="0" style="font-family:'Nimbus Sans L',Arial,sans-serif; font-size:121px;">'</tspan></text>
+		<g>
+			<line style="fill:none;stroke:#000000;stroke-width:8;" x1="244" y1="143.7" x2="244" y2="237.7"/>
+			<line style="fill:none;stroke:#000000;stroke-width:8;" x1="267" y1="143.7" x2="267" y2="237.7"/>
+		</g>
+		<line style="fill:none;stroke:#000000;stroke-width:8;" x1="125" y1="362.7" x2="215" y2="310.7"/>
+	</g>
+	<rect style="fill:none;" width="625" height="480"/>
+</g>
+</svg>
