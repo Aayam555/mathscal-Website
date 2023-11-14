@@ -37,3 +37,8 @@ h6 {
 #home {
   margin-left: 10px;
 }
+
+img{
+  display: block;
+  margin: auto;
+}
