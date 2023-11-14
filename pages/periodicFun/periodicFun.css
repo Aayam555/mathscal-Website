@@ -1,0 +1,18 @@
+#periodic-table{
+    display: block;
+    text-align: center;
+}
+
+#periodic-table-img{
+    width: 18rem;
+}
+
+.content{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.card{
+    text-align: center;
+}

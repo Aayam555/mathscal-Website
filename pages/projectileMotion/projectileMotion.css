@@ -1,0 +1,16 @@
+.card{
+    margin: auto;
+    margin-top: 30px;
+    text-align: center;
+}
+
+#image{
+    width: 18rem;
+    display: block;
+    margin: auto;
+}
+
+#T, #H, #R{
+    display: block;
+    font: 28px bold;
+}

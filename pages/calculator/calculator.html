@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+    <title>Calculator</title>
+    <link rel="shortcut icon" href="../../images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="./calculator.css">
+
+    <style>
+        .card{
+            box-shadow: 0px 8px 8px 1px rgba(194, 189, 189, 0.876);
+        }
+    </style>
+</head>
+
+<body>
+    <a class="btn btn-outline-dark" href="../../index.html" id="home">Home</a>
+    <h1>Calculator</h1>
+    <div class="card center" style="width: 17rem;">
+        <div class="card-body">
+            <input class="form-control" id="display">
+            <hr>
+            <table>
+                <button class="btn btn-dark mt-10">(</button>
+                <button class="btn btn-dark mt-10">)</button>
+                <button class="btn btn-dark mt-10" id="ac">AC</button>
+                <button class="btn btn-dark mt-10">%</button>
+            </table>
+            <table>
+                <button class="btn btn-dark mt-10">7</button>
+                <button class="btn btn-dark mt-10">8</button>
+                <button class="btn btn-dark mt-10">9</button>
+                <button class="btn btn-dark mt-10 sign">/</button>
+            </table>
+            <table>
+                <button class="btn btn-dark mt-10">4</button>
+                <button class="btn btn-dark mt-10">5</button>
+                <button class="btn btn-dark mt-10">6</button>
+                <button class="btn btn-dark mt-10 sign">x</button>
+            </table>
+            <table>
+                <button class="btn btn-dark mt-10">1</button>
+                <button class="btn btn-dark mt-10">2</button>
+                <button class="btn btn-dark mt-10">3</button>
+                <button class="btn btn-dark mt-10 sign">-</button>
+            </table>
+            <table>
+                <button class="btn btn-dark mt-10">0</button>
+                <button class="btn btn-dark mt-10">.</button>
+                <button class="btn btn-dark mt-10">=</button>
+                <button class="btn btn-dark mt-10 sign">+</button>
+            </table>
+
+        </div>
+    </div>
+    </div>
+
+    <script src="./calculator.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
