@@ -31,3 +31,8 @@
   margin-top: 5rem;
   font-size: 35px;
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+   -webkit-appearance: none;
+}
