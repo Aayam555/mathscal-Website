@@ -1,0 +1,47 @@
+#show-btn{
+  margin: auto;
+  width: 20rem;
+  display: flex;
+}
+
+#date-img{
+  width: 75px;
+  border-radius: 50%;
+  border: 2px solid limegreen;
+}
+
+.card{
+  width: 23rem;
+  margin: auto;
+  margin-top: 10px;
+}
+
+#date-info span{
+  display: block;
+  text-align: center;
+  font-size: 20px;
+}
+
+.form-control{
+  margin: auto;
+  width: 20rem;
+}
+
+.input-field{
+  display: block;
+}
+
+#insert-btn{
+  width: 50%;
+  margin-left: 25%;
+}
+
+#date-img{
+  margin: auto;
+}
+
+#insert-btn{
+  width: 20rem;
+  margin-left: 24px;
+  margin-bottom: 20px;
+}

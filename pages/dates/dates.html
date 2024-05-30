@@ -1,1 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dates</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <link rel="shortcut icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="dates.css" />
+    <link rel="stylesheet" href="../../cards.css" />
+  </head>
 
+  <body>
+    <a class="btn btn-outline-dark" href="../../index.html" id="home">Home</a>
+    
+    <div id="show-btn">
+       <button onclick="showDates(0)" class="btn btn-primary">Show</button>
+       <button onclick="addDates()" class="btn btn-success">Add</button>
+     </div>
+    <div id="container">
+    <div id="input-card" class="card">
+    <div class="input-field">
+      <input class="form-control" placeholder="Enter something special about the day" id="dateName" type="text">
+      <input class="form-control" placeholder="Enter image url" id="dateImage" type="text">
+      <input id="dateInput" class="form-control" type="date">
+      <button id="insert-btn" class="btn btn-success" onclick="insertDates()">Insert</button>
+      </div>
+    </div>
+    </div>
+    
+    <script src="dates.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+      integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
