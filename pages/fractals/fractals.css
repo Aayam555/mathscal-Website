@@ -1,0 +1,15 @@
+body{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.center{
+    text-align: center;
+}
+
+.card{
+    margin: auto;
+    text-align: center;
+}
+
