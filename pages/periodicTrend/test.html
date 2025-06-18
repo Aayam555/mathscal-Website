@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Trends of Elements</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff; /* White container background */
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        #plot {
+            width: 100%;
+            height: 600px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Periodic Trends of Elements</h1>
+        <p class="text-gray-600 mb-6">
+            Select a property from the dropdown to visualize its trend across the periodic table.
+        </p>
+        <div class="controls">
+            <label for="property-select" class="text-lg font-medium text-gray-700 mr-3">Select Property:</label>
+            <select id="property-select" class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="AtomicRadius">Atomic Radius (pm)</option>
+                <option value="AtomicMass">Atomic Mass (amu)</option>
+                <option value="Electronegativity">Electronegativity (Pauling)</option>
+                <option value="IonizationEnergy">Ionization Energy (kJ/mol)</option>
+                <option value="ElectronAffinity">Electron Affinity (kJ/mol)</option>
+                <option value="MeltingPoint">Melting Point (K)</option>
+                <option value="BoilingPoint">Boiling Point (K)</option>
+                <option value="Density">Density (g/cm³)</option>
+            </select>
+        </div>
+        <div id="plot"></div>
+    </div>
+
+    <script>
+        // Data for all 118 elements including atomic number (Z), symbol, name, period, group, and various properties
+        // Data compiled from various reliable sources (e.g., PubChem, Wikipedia, webelements.com)
+        // Note: Data for some superheavy elements might be theoretical or unavailable (represented as null).
+        const elementsData = [
+            { "AtomicNumber": 1, "Symbol": "H", "Name": "Hydrogen", "AtomicMass": 1.008, "Electronegativity": 2.2, "AtomicRadius": 120, "IonizationEnergy": 1312, "ElectronAffinity": 72.8, "MeltingPoint": 13.99, "BoilingPoint": 20.271, "Density": 0.00008988, "Period": 1, "Group": 1 },
+            { "AtomicNumber": 2, "Symbol": "He", "Name": "Helium", "AtomicMass": 4.002602, "Electronegativity": null, "AtomicRadius": 140, "IonizationEnergy": 2372.3, "ElectronAffinity": -48, "MeltingPoint": 0.95, "BoilingPoint": 4.222, "Density": 0.0001785, "Period": 1, "Group": 18 },
+            { "AtomicNumber": 3, "Symbol": "Li", "Name": "Lithium", "AtomicMass": 6.94, "Electronegativity": 0.98, "AtomicRadius": 182, "IonizationEnergy": 520.2, "ElectronAffinity": 59.6, "MeltingPoint": 453.65, "BoilingPoint": 1615, "Density": 0.534, "Period": 2, "Group": 1 },
+            { "AtomicNumber": 4, "Symbol": "Be", "Name": "Beryllium", "AtomicMass": 9.0121831, "Electronegativity": 1.57, "AtomicRadius": 153, "IonizationEnergy": 899.5, "ElectronAffinity": -50, "MeltingPoint": 1560, "BoilingPoint": 2742, "Density": 1.85, "Period": 2, "Group": 2 },
+            { "AtomicNumber": 5, "Symbol": "B", "Name": "Boron", "AtomicMass": 10.81, "Electronegativity": 2.04, "AtomicRadius": 192, "IonizationEnergy": 800.6, "ElectronAffinity": 27.1, "MeltingPoint": 2349, "BoilingPoint": 4200, "Density": 2.34, "Period": 2, "Group": 13 },
+            { "AtomicNumber": 6, "Symbol": "C", "Name": "Carbon", "AtomicMass": 12.011, "Electronegativity": 2.55, "AtomicRadius": 170, "IonizationEnergy": 1086.5, "ElectronAffinity": 122.3, "MeltingPoint": 3823, "BoilingPoint": 4098, "Density": 2.267, "Period": 2, "Group": 14 },
+            { "AtomicNumber": 7, "Symbol": "N", "Name": "Nitrogen", "AtomicMass": 14.007, "Electronegativity": 3.04, "AtomicRadius": 155, "IonizationEnergy": 1402.3, "ElectronAffinity": -6.8, "MeltingPoint": 63.15, "BoilingPoint": 77.35, "Density": 0.0012506, "Period": 2, "Group": 15 },
+            { "AtomicNumber": 8, "Symbol": "O", "Name": "Oxygen", "AtomicMass": 15.999, "Electronegativity": 3.44, "AtomicRadius": 152, "IonizationEnergy": 1313.9, "ElectronAffinity": 141, "MeltingPoint": 54.36, "BoilingPoint": 90.188, "Density": 0.001429, "Period": 2, "Group": 16 },
+            { "AtomicNumber": 9, "Symbol": "F", "Name": "Fluorine", "AtomicMass": 18.998403163, "Electronegativity": 3.98, "AtomicRadius": 135, "IonizationEnergy": 1681, "ElectronAffinity": 328, "MeltingPoint": 53.53, "BoilingPoint": 85.03, "Density": 0.001696, "Period": 2, "Group": 17 },
+            { "AtomicNumber": 10, "Symbol": "Ne", "Name": "Neon", "AtomicMass": 20.1797, "Electronegativity": null, "AtomicRadius": 154, "IonizationEnergy": 2080.7, "ElectronAffinity": -116, "MeltingPoint": 24.56, "BoilingPoint": 27.1, "Density": 0.0008999, "Period": 2, "Group": 18 },
+            { "AtomicNumber": 11, "Symbol": "Na", "Name": "Sodium", "AtomicMass": 22.98976928, "Electronegativity": 0.93, "AtomicRadius": 227, "IonizationEnergy": 495.8, "ElectronAffinity": 52.9, "MeltingPoint": 370.944, "BoilingPoint": 1156, "Density": 0.968, "Period": 3, "Group": 1 },
+            { "AtomicNumber": 12, "Symbol": "Mg", "Name": "Magnesium", "AtomicMass": 24.305, "Electronegativity": 1.31, "AtomicRadius": 173, "IonizationEnergy": 737.7, "ElectronAffinity": -40, "MeltingPoint": 923, "BoilingPoint": 1363, "Density": 1.738, "Period": 3, "Group": 2 },
+            { "AtomicNumber": 13, "Symbol": "Al", "Name": "Aluminum", "AtomicMass": 26.9815385, "Electronegativity": 1.61, "AtomicRadius": 184, "IonizationEnergy": 577.5, "ElectronAffinity": 41.8, "MeltingPoint": 933.47, "BoilingPoint": 2792, "Density": 2.7, "Period": 3, "Group": 13 },
+            { "AtomicNumber": 14, "Symbol": "Si", "Name": "Silicon", "AtomicMass": 28.085, "Electronegativity": 1.9, "AtomicRadius": 210, "IonizationEnergy": 786.5, "ElectronAffinity": 134, "MeltingPoint": 1687, "BoilingPoint": 3538, "Density": 2.3296, "Period": 3, "Group": 14 },
+            { "AtomicNumber": 15, "Symbol": "P", "Name": "Phosphorus", "AtomicMass": 30.973761998, "Electronegativity": 2.19, "AtomicRadius": 180, "IonizationEnergy": 1011.8, "ElectronAffinity": 72, "MeltingPoint": 317.3, "BoilingPoint": 553.7, "Density": 1.823, "Period": 3, "Group": 15 },
+            { "AtomicNumber": 16, "Symbol": "S", "Name": "Sulfur", "AtomicMass": 32.06, "Electronegativity": 2.58, "AtomicRadius": 180, "IonizationEnergy": 999.6, "ElectronAffinity": 200.4, "MeltingPoint": 388.36, "BoilingPoint": 717.8, "Density": 2.067, "Period": 3, "Group": 16 },
+            { "AtomicNumber": 17, "Symbol": "Cl", "Name": "Chlorine", "AtomicMass": 35.45, "Electronegativity": 3.16, "AtomicRadius": 175, "IonizationEnergy": 1251.2, "ElectronAffinity": 349, "MeltingPoint": 171.6, "BoilingPoint": 239.11, "Density": 0.003214, "Period": 3, "Group": 17 },
+            { "AtomicNumber": 18, "Symbol": "Ar", "Name": "Argon", "AtomicMass": 39.948, "Electronegativity": null, "AtomicRadius": 188, "IonizationEnergy": 1520.6, "ElectronAffinity": -96, "MeltingPoint": 83.8, "BoilingPoint": 87.302, "Density": 0.001784, "Period": 3, "Group": 18 },
+            { "AtomicNumber": 19, "Symbol": "K", "Name": "Potassium", "AtomicMass": 39.0983, "Electronegativity": 0.82, "AtomicRadius": 275, "IonizationEnergy": 418.8, "ElectronAffinity": 48.4, "MeltingPoint": 336.7, "BoilingPoint": 1032, "Density": 0.862, "Period": 4, "Group": 1 },
+            { "AtomicNumber": 20, "Symbol": "Ca", "Name": "Calcium", "AtomicMass": 40.078, "Electronegativity": 1, "AtomicRadius": 231, "IonizationEnergy": 589.8, "ElectronAffinity": 2.4, "MeltingPoint": 1115, "BoilingPoint": 1757, "Density": 1.55, "Period": 4, "Group": 2 },
+            { "AtomicNumber": 21, "Symbol": "Sc", "Name": "Scandium", "AtomicMass": 44.955908, "Electronegativity": 1.36, "AtomicRadius": 211, "IonizationEnergy": 633.1, "ElectronAffinity": 18, "MeltingPoint": 1814, "BoilingPoint": 3109, "Density": 2.989, "Period": 4, "Group": 3 },
+            { "AtomicNumber": 22, "Symbol": "Ti", "Name": "Titanium", "AtomicMass": 47.867, "Electronegativity": 1.54, "AtomicRadius": 187, "IonizationEnergy": 658.8, "ElectronAffinity": 7.6, "MeltingPoint": 1941, "BoilingPoint": 3560, "Density": 4.506, "Period": 4, "Group": 4 },
+            { "AtomicNumber": 23, "Symbol": "V", "Name": "Vanadium", "AtomicMass": 50.9415, "Electronegativity": 1.63, "AtomicRadius": 179, "IonizationEnergy": 650.9, "ElectronAffinity": 50.9, "MeltingPoint": 2183, "BoilingPoint": 3680, "Density": 6.11, "Period": 4, "Group": 5 },
+            { "AtomicNumber": 24, "Symbol": "Cr", "Name": "Chromium", "AtomicMass": 51.9961, "Electronegativity": 1.66, "AtomicRadius": 189, "IonizationEnergy": 652.9, "ElectronAffinity": 64.3, "MeltingPoint": 2180, "BoilingPoint": 2944, "Density": 7.14, "Period": 4, "Group": 6 },
+            { "AtomicNumber": 25, "Symbol": "Mn", "Name": "Manganese", "AtomicMass": 54.938044, "Electronegativity": 1.55, "AtomicRadius": 197, "IonizationEnergy": 717.3, "ElectronAffinity": -50, "MeltingPoint": 1519, "BoilingPoint": 2334, "Density": 7.47, "Period": 4, "Group": 7 },
+            { "AtomicNumber": 26, "Symbol": "Fe", "Name": "Iron", "AtomicMass": 55.845, "Electronegativity": 1.83, "AtomicRadius": 194, "IonizationEnergy": 762.5, "ElectronAffinity": 14.7, "MeltingPoint": 1811, "BoilingPoint": 3134, "Density": 7.874, "Period": 4, "Group": 8 },
+            { "AtomicNumber": 27, "Symbol": "Co", "Name": "Cobalt", "AtomicMass": 58.933194, "Electronegativity": 1.88, "AtomicRadius": 192, "IonizationEnergy": 760.4, "ElectronAffinity": 63.9, "MeltingPoint": 1768, "BoilingPoint": 3200, "Density": 8.9, "Period": 4, "Group": 9 },
+            { "AtomicNumber": 28, "Symbol": "Ni", "Name": "Nickel", "AtomicMass": 58.6934, "Electronegativity": 1.91, "AtomicRadius": 163, "IonizationEnergy": 737.1, "ElectronAffinity": 111.6, "MeltingPoint": 1728, "BoilingPoint": 3003, "Density": 8.908, "Period": 4, "Group": 10 },
+            { "AtomicNumber": 29, "Symbol": "Cu", "Name": "Copper", "AtomicMass": 63.546, "Electronegativity": 1.9, "AtomicRadius": 140, "IonizationEnergy": 745.5, "ElectronAffinity": 118.4, "MeltingPoint": 1357.77, "BoilingPoint": 2835, "Density": 8.96, "Period": 4, "Group": 11 },
+            { "AtomicNumber": 30, "Symbol": "Zn", "Name": "Zinc", "AtomicMass": 65.38, "Electronegativity": 1.65, "AtomicRadius": 139, "IonizationEnergy": 906.4, "ElectronAffinity": -58, "MeltingPoint": 692.68, "BoilingPoint": 1180, "Density": 7.14, "Period": 4, "Group": 12 },
+            { "AtomicNumber": 31, "Symbol": "Ga", "Name": "Gallium", "AtomicMass": 69.723, "Electronegativity": 1.81, "AtomicRadius": 187, "IonizationEnergy": 578.8, "ElectronAffinity": 41, "MeltingPoint": 302.9146, "BoilingPoint": 2477, "Density": 5.904, "Period": 4, "Group": 13 },
+            { "AtomicNumber": 32, "Symbol": "Ge", "Name": "Germanium", "AtomicMass": 72.63, "Electronegativity": 2.01, "AtomicRadius": 211, "IonizationEnergy": 762, "ElectronAffinity": 119, "MeltingPoint": 1211.4, "BoilingPoint": 3106, "Density": 5.323, "Period": 4, "Group": 14 },
+            { "AtomicNumber": 33, "Symbol": "As", "Name": "Arsenic", "AtomicMass": 74.921595, "Electronegativity": 2.18, "AtomicRadius": 185, "IonizationEnergy": 947.2, "ElectronAffinity": 78, "MeltingPoint": 1090, "BoilingPoint": 887, "Density": 5.727, "Period": 4, "Group": 15 },
+            { "AtomicNumber": 34, "Symbol": "Se", "Name": "Selenium", "AtomicMass": 78.971, "Electronegativity": 2.55, "AtomicRadius": 190, "IonizationEnergy": 941, "ElectronAffinity": 195, "MeltingPoint": 494, "BoilingPoint": 958, "Density": 4.819, "Period": 4, "Group": 16 },
+            { "AtomicNumber": 35, "Symbol": "Br", "Name": "Bromine", "AtomicMass": 79.904, "Electronegativity": 2.96, "AtomicRadius": 183, "IonizationEnergy": 1139.9, "ElectronAffinity": 324.6, "MeltingPoint": 265.8, "BoilingPoint": 332, "Density": 3.1028, "Period": 4, "Group": 17 },
+            { "AtomicNumber": 36, "Symbol": "Kr", "Name": "Krypton", "AtomicMass": 83.798, "Electronegativity": 3, "AtomicRadius": 202, "IonizationEnergy": 1350.8, "ElectronAffinity": -99, "MeltingPoint": 115.79, "BoilingPoint": 121.39, "Density": 0.003749, "Period": 4, "Group": 18 },
+            { "AtomicNumber": 37, "Symbol": "Rb", "Name": "Rubidium", "AtomicMass": 85.4678, "Electronegativity": 0.82, "AtomicRadius": 303, "IonizationEnergy": 403, "ElectronAffinity": 46.9, "MeltingPoint": 312.45, "BoilingPoint": 961, "Density": 1.532, "Period": 5, "Group": 1 },
+            { "AtomicNumber": 38, "Symbol": "Sr", "Name": "Strontium", "AtomicMass": 87.62, "Electronegativity": 0.95, "AtomicRadius": 249, "IonizationEnergy": 549.5, "ElectronAffinity": 5, "MeltingPoint": 1050, "BoilingPoint": 1655, "Density": 2.64, "Period": 5, "Group": 2 },
+            { "AtomicNumber": 39, "Symbol": "Y", "Name": "Yttrium", "AtomicMass": 88.90584, "Electronegativity": 1.22, "AtomicRadius": 219, "IonizationEnergy": 600, "ElectronAffinity": 29.6, "MeltingPoint": 1799, "BoilingPoint": 3609, "Density": 4.472, "Period": 5, "Group": 3 },
+            { "AtomicNumber": 40, "Symbol": "Zr", "Name": "Zirconium", "AtomicMass": 91.224, "Electronegativity": 1.33, "AtomicRadius": 186, "IonizationEnergy": 640.1, "ElectronAffinity": 41, "MeltingPoint": 2128, "BoilingPoint": 4650, "Density": 6.511, "Period": 5, "Group": 4 },
+            { "AtomicNumber": 41, "Symbol": "Nb", "Name": "Niobium", "AtomicMass": 92.90637, "Electronegativity": 1.6, "AtomicRadius": 207, "IonizationEnergy": 652.1, "ElectronAffinity": 86.1, "MeltingPoint": 2750, "BoilingPoint": 5017, "Density": 8.57, "Period": 5, "Group": 5 },
+            { "AtomicNumber": 42, "Symbol": "Mo", "Name": "Molybdenum", "AtomicMass": 95.95, "Electronegativity": 2.16, "AtomicRadius": 209, "IonizationEnergy": 684.3, "ElectronAffinity": 72.1, "MeltingPoint": 2896, "BoilingPoint": 4912, "Density": 10.28, "Period": 5, "Group": 6 },
+            { "AtomicNumber": 43, "Symbol": "Tc", "Name": "Technetium", "AtomicMass": 98, "Electronegativity": 1.9, "AtomicRadius": 209, "IonizationEnergy": 702, "ElectronAffinity": 53, "MeltingPoint": 2430, "BoilingPoint": 4538, "Density": 11.5, "Period": 5, "Group": 7 },
+            { "AtomicNumber": 44, "Symbol": "Ru", "Name": "Ruthenium", "AtomicMass": 101.07, "Electronegativity": 2.2, "AtomicRadius": 207, "IonizationEnergy": 710.2, "ElectronAffinity": 100, "MeltingPoint": 2607, "BoilingPoint": 4423, "Density": 12.45, "Period": 5, "Group": 8 },
+            { "AtomicNumber": 45, "Symbol": "Rh", "Name": "Rhodium", "AtomicMass": 102.90550, "Electronegativity": 2.28, "AtomicRadius": 195, "IonizationEnergy": 719.7, "ElectronAffinity": 110, "MeltingPoint": 2237, "BoilingPoint": 3968, "Density": 12.41, "Period": 5, "Group": 9 },
+            { "AtomicNumber": 46, "Symbol": "Pd", "Name": "Palladium", "AtomicMass": 106.42, "Electronegativity": 2.2, "AtomicRadius": 202, "IonizationEnergy": 804.4, "ElectronAffinity": 54.2, "MeltingPoint": 1828.05, "BoilingPoint": 3236, "Density": 12.023, "Period": 5, "Group": 10 },
+            { "AtomicNumber": 47, "Symbol": "Ag", "Name": "Silver", "AtomicMass": 107.8682, "Electronegativity": 1.93, "AtomicRadius": 172, "IonizationEnergy": 731, "ElectronAffinity": 126, "MeltingPoint": 1234.93, "BoilingPoint": 2435, "Density": 10.49, "Period": 5, "Group": 11 },
+            { "AtomicNumber": 48, "Symbol": "Cd", "Name": "Cadmium", "AtomicMass": 112.414, "Electronegativity": 1.69, "AtomicRadius": 158, "IonizationEnergy": 867.8, "ElectronAffinity": -18, "MeltingPoint": 594.22, "BoilingPoint": 1040, "Density": 8.65, "Period": 5, "Group": 12 },
+            { "AtomicNumber": 49, "Symbol": "In", "Name": "Indium", "AtomicMass": 114.818, "Electronegativity": 1.78, "AtomicRadius": 193, "IonizationEnergy": 558.3, "ElectronAffinity": 39, "MeltingPoint": 429.7485, "BoilingPoint": 2345, "Density": 7.31, "Period": 5, "Group": 13 },
+            { "AtomicNumber": 50, "Symbol": "Sn", "Name": "Tin", "AtomicMass": 118.71, "Electronegativity": 1.96, "AtomicRadius": 217, "IonizationEnergy": 708.6, "ElectronAffinity": 107.3, "MeltingPoint": 505.08, "BoilingPoint": 2875, "Density": 7.26, "Period": 5, "Group": 14 },
+            { "AtomicNumber": 51, "Symbol": "Sb", "Name": "Antimony", "AtomicMass": 121.760, "Electronegativity": 2.05, "AtomicRadius": 206, "IonizationEnergy": 834, "ElectronAffinity": 103.2, "MeltingPoint": 903.78, "BoilingPoint": 1860, "Density": 6.697, "Period": 5, "Group": 15 },
+            { "AtomicNumber": 52, "Symbol": "Te", "Name": "Tellurium", "AtomicMass": 127.60, "Electronegativity": 2.1, "AtomicRadius": 206, "IonizationEnergy": 869.3, "ElectronAffinity": 190.2, "MeltingPoint": 722.66, "BoilingPoint": 1261, "Density": 6.24, "Period": 5, "Group": 16 },
+            { "AtomicNumber": 53, "Symbol": "I", "Name": "Iodine", "AtomicMass": 126.90447, "Electronegativity": 2.66, "AtomicRadius": 198, "IonizationEnergy": 1008.4, "ElectronAffinity": 295.2, "MeltingPoint": 386.85, "BoilingPoint": 457.4, "Density": 4.933, "Period": 5, "Group": 17 },
+            { "AtomicNumber": 54, "Symbol": "Xe", "Name": "Xenon", "AtomicMass": 131.293, "Electronegativity": 2.6, "AtomicRadius": 216, "IonizationEnergy": 1170.4, "ElectronAffinity": -77, "MeltingPoint": 161.4, "BoilingPoint": 165.03, "Density": 0.005894, "Period": 5, "Group": 18 },
+            { "AtomicNumber": 55, "Symbol": "Cs", "Name": "Cesium", "AtomicMass": 132.90545196, "Electronegativity": 0.79, "AtomicRadius": 343, "IonizationEnergy": 375.7, "ElectronAffinity": 45.5, "MeltingPoint": 301.7, "BoilingPoint": 944, "Density": 1.879, "Period": 6, "Group": 1 },
+            { "AtomicNumber": 56, "Symbol": "Ba", "Name": "Barium", "AtomicMass": 137.327, "Electronegativity": 0.89, "AtomicRadius": 268, "IonizationEnergy": 502.9, "ElectronAffinity": 13.9, "MeltingPoint": 1000, "BoilingPoint": 2170, "Density": 3.51, "Period": 6, "Group": 2 },
+            { "AtomicNumber": 57, "Symbol": "La", "Name": "Lanthanum", "AtomicMass": 138.90547, "Electronegativity": 1.1, "AtomicRadius": 240, "IonizationEnergy": 538.1, "ElectronAffinity": 53, "MeltingPoint": 1193, "BoilingPoint": 3737, "Density": 6.162, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 58, "Symbol": "Ce", "Name": "Cerium", "AtomicMass": 140.116, "Electronegativity": 1.12, "AtomicRadius": 235, "IonizationEnergy": 534.4, "ElectronAffinity": 50, "MeltingPoint": 1068, "BoilingPoint": 3703, "Density": 6.77, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 59, "Symbol": "Pr", "Name": "Praseodymium", "AtomicMass": 140.90766, "Electronegativity": 1.13, "AtomicRadius": 239, "IonizationEnergy": 527, "ElectronAffinity": 50, "MeltingPoint": 1208, "BoilingPoint": 3793, "Density": 6.77, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 60, "Symbol": "Nd", "Name": "Neodymium", "AtomicMass": 144.242, "Electronegativity": 1.14, "AtomicRadius": 229, "IonizationEnergy": 533.1, "ElectronAffinity": 50, "MeltingPoint": 1297, "BoilingPoint": 3347, "Density": 7.01, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 61, "Symbol": "Pm", "Name": "Promethium", "AtomicMass": 145, "Electronegativity": 1.13, "AtomicRadius": 236, "IonizationEnergy": 540, "ElectronAffinity": 50, "MeltingPoint": 1315, "BoilingPoint": 3273, "Density": 7.26, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 62, "Symbol": "Sm", "Name": "Samarium", "AtomicMass": 150.36, "Electronegativity": 1.17, "AtomicRadius": 229, "IonizationEnergy": 544.5, "ElectronAffinity": 50, "MeltingPoint": 1345, "BoilingPoint": 2067, "Density": 7.52, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 63, "Symbol": "Eu", "Name": "Europium", "AtomicMass": 151.964, "Electronegativity": 1.2, "AtomicRadius": 233, "IonizationEnergy": 547.1, "ElectronAffinity": 50, "MeltingPoint": 1099, "BoilingPoint": 1802, "Density": 5.244, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 64, "Symbol": "Gd", "Name": "Gadolinium", "AtomicMass": 157.25, "Electronegativity": 1.2, "AtomicRadius": 237, "IonizationEnergy": 593.4, "ElectronAffinity": 50, "MeltingPoint": 1585, "BoilingPoint": 3273, "Density": 7.9, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 65, "Symbol": "Tb", "Name": "Terbium", "AtomicMass": 158.92535, "Electronegativity": 1.1, "AtomicRadius": 221, "IonizationEnergy": 585.8, "ElectronAffinity": 50, "MeltingPoint": 1629, "BoilingPoint": 3396, "Density": 8.23, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 66, "Symbol": "Dy", "Name": "Dysprosium", "AtomicMass": 162.500, "Electronegativity": 1.1, "AtomicRadius": 229, "IonizationEnergy": 573, "ElectronAffinity": 50, "MeltingPoint": 1680, "BoilingPoint": 2840, "Density": 8.55, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 67, "Symbol": "Ho", "Name": "Holmium", "AtomicMass": 164.93033, "Electronegativity": 1.1, "AtomicRadius": 216, "IonizationEnergy": 581, "ElectronAffinity": 50, "MeltingPoint": 1734, "BoilingPoint": 2873, "Density": 8.79, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 68, "Symbol": "Er", "Name": "Erbium", "AtomicMass": 167.259, "Electronegativity": 1.1, "AtomicRadius": 235, "IonizationEnergy": 589.3, "ElectronAffinity": 50, "MeltingPoint": 1802, "BoilingPoint": 3141, "Density": 9.066, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 69, "Symbol": "Tm", "Name": "Thulium", "AtomicMass": 168.93422, "Electronegativity": 1.1, "AtomicRadius": 227, "IonizationEnergy": 596.7, "ElectronAffinity": 50, "MeltingPoint": 1818, "BoilingPoint": 2223, "Density": 9.32, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 70, "Symbol": "Yb", "Name": "Ytterbium", "AtomicMass": 173.045, "Electronegativity": 1.1, "AtomicRadius": 242, "IonizationEnergy": 603.4, "ElectronAffinity": 50, "MeltingPoint": 1097, "BoilingPoint": 1469, "Density": 6.965, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 71, "Symbol": "Lu", "Name": "Lutetium", "AtomicMass": 174.9668, "Electronegativity": 1.2, "AtomicRadius": 221, "IonizationEnergy": 523.5, "ElectronAffinity": 50, "MeltingPoint": 1925, "BoilingPoint": 3675, "Density": 9.84, "Period": 6, "Group": 3 },
+            { "AtomicNumber": 72, "Symbol": "Hf", "Name": "Hafnium", "AtomicMass": 178.49, "Electronegativity": 1.3, "AtomicRadius": 212, "IonizationEnergy": 658.5, "ElectronAffinity": 17.2, "MeltingPoint": 2506, "BoilingPoint": 4876, "Density": 13.31, "Period": 6, "Group": 4 },
+            { "AtomicNumber": 73, "Symbol": "Ta", "Name": "Tantalum", "AtomicMass": 180.94788, "Electronegativity": 1.5, "AtomicRadius": 217, "IonizationEnergy": 761, "ElectronAffinity": 31, "MeltingPoint": 3290, "BoilingPoint": 5731, "Density": 16.69, "Period": 6, "Group": 5 },
+            { "AtomicNumber": 74, "Symbol": "W", "Name": "Tungsten", "AtomicMass": 183.84, "Electronegativity": 2.36, "AtomicRadius": 210, "IonizationEnergy": 787, "ElectronAffinity": 78.7, "MeltingPoint": 3695, "BoilingPoint": 6203, "Density": 19.25, "Period": 6, "Group": 6 },
+            { "AtomicNumber": 75, "Symbol": "Re", "Name": "Rhenium", "AtomicMass": 186.207, "Electronegativity": 1.9, "AtomicRadius": 217, "IonizationEnergy": 760, "ElectronAffinity": 5.9, "MeltingPoint": 3459, "BoilingPoint": 5869, "Density": 21.02, "Period": 6, "Group": 7 },
+            { "AtomicNumber": 76, "Symbol": "Os", "Name": "Osmium", "AtomicMass": 190.23, "Electronegativity": 2.2, "AtomicRadius": 216, "IonizationEnergy": 840, "ElectronAffinity": 107.6, "MeltingPoint": 3306, "BoilingPoint": 5285, "Density": 22.59, "Period": 6, "Group": 8 },
+            { "AtomicNumber": 77, "Symbol": "Ir", "Name": "Iridium", "AtomicMass": 192.217, "Electronegativity": 2.2, "AtomicRadius": 202, "IonizationEnergy": 870, "ElectronAffinity": 150.9, "MeltingPoint": 2719, "BoilingPoint": 4701, "Density": 22.56, "Period": 6, "Group": 9 },
+            { "AtomicNumber": 78, "Symbol": "Pt", "Name": "Platinum", "AtomicMass": 195.084, "Electronegativity": 2.28, "AtomicRadius": 209, "IonizationEnergy": 870, "ElectronAffinity": 205.1, "MeltingPoint": 2041.4, "BoilingPoint": 4098, "Density": 21.45, "Period": 6, "Group": 10 },
+            { "AtomicNumber": 79, "Symbol": "Au", "Name": "Gold", "AtomicMass": 196.966570, "Electronegativity": 2.54, "AtomicRadius": 166, "IonizationEnergy": 890.1, "ElectronAffinity": 222.8, "MeltingPoint": 1337.33, "BoilingPoint": 3129, "Density": 19.3, "Period": 6, "Group": 11 },
+            { "AtomicNumber": 80, "Symbol": "Hg", "Name": "Mercury", "AtomicMass": 200.592, "Electronegativity": 2, "AtomicRadius": 209, "IonizationEnergy": 1007.1, "ElectronAffinity": -48, "MeltingPoint": 234.321, "BoilingPoint": 629.88, "Density": 13.534, "Period": 6, "Group": 12 },
+            { "AtomicNumber": 81, "Symbol": "Tl", "Name": "Thallium", "AtomicMass": 204.38, "Electronegativity": 1.62, "AtomicRadius": 196, "IonizationEnergy": 589.4, "ElectronAffinity": 36.4, "MeltingPoint": 577, "BoilingPoint": 1746, "Density": 11.85, "Period": 6, "Group": 13 },
+            { "AtomicNumber": 82, "Symbol": "Pb", "Name": "Lead", "AtomicMass": 207.2, "Electronegativity": 1.87, "AtomicRadius": 202, "IonizationEnergy": 715.6, "ElectronAffinity": 35.1, "MeltingPoint": 600.61, "BoilingPoint": 2022, "Density": 11.34, "Period": 6, "Group": 14 },
+            { "AtomicNumber": 83, "Symbol": "Bi", "Name": "Bismuth", "AtomicMass": 208.98040, "Electronegativity": 2.02, "AtomicRadius": 207, "IonizationEnergy": 702.9, "ElectronAffinity": 91.2, "MeltingPoint": 544.7, "BoilingPoint": 1837, "Density": 9.78, "Period": 6, "Group": 15 },
+            { "AtomicNumber": 84, "Symbol": "Po", "Name": "Polonium", "AtomicMass": 209, "Electronegativity": 2, "AtomicRadius": 197, "IonizationEnergy": 812.1, "ElectronAffinity": 183, "MeltingPoint": 527, "BoilingPoint": 1235, "Density": 9.196, "Period": 6, "Group": 16 },
+            { "AtomicNumber": 85, "Symbol": "At", "Name": "Astatine", "AtomicMass": 210, "Electronegativity": 2.2, "AtomicRadius": 202, "IonizationEnergy": 926, "ElectronAffinity": 270, "MeltingPoint": 575, "BoilingPoint": 610, "Density": 6.2, "Period": 6, "Group": 17 },
+            { "AtomicNumber": 86, "Symbol": "Rn", "Name": "Radon", "AtomicMass": 222, "Electronegativity": null, "AtomicRadius": 220, "IonizationEnergy": 1037, "ElectronAffinity": -68, "MeltingPoint": 202, "BoilingPoint": 211.3, "Density": 0.00973, "Period": 6, "Group": 18 },
+            { "AtomicNumber": 87, "Symbol": "Fr", "Name": "Francium", "AtomicMass": 223, "Electronegativity": 0.7, "AtomicRadius": 348, "IonizationEnergy": 380, "ElectronAffinity": null, "MeltingPoint": 300, "BoilingPoint": 950, "Density": 1.87, "Period": 7, "Group": 1 },
+            { "AtomicNumber": 88, "Symbol": "Ra", "Name": "Radium", "AtomicMass": 226, "Electronegativity": 0.9, "AtomicRadius": 283, "IonizationEnergy": 509.3, "ElectronAffinity": 9.6, "MeltingPoint": 973, "BoilingPoint": 2010, "Density": 5.5, "Period": 7, "Group": 2 },
+            { "AtomicNumber": 89, "Symbol": "Ac", "Name": "Actinium", "AtomicMass": 227, "Electronegativity": 1.1, "AtomicRadius": 260, "IonizationEnergy": 499, "ElectronAffinity": 33.7, "MeltingPoint": 1323, "BoilingPoint": 3573, "Density": 10.07, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 90, "Symbol": "Th", "Name": "Thorium", "AtomicMass": 232.0377, "Electronegativity": 1.3, "AtomicRadius": 237, "IonizationEnergy": 587, "ElectronAffinity": 112.7, "MeltingPoint": 2028, "BoilingPoint": 5061, "Density": 11.724, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 91, "Symbol": "Pa", "Name": "Protactinium", "AtomicMass": 231.03588, "Electronegativity": 1.5, "AtomicRadius": 243, "IonizationEnergy": 568, "ElectronAffinity": 176, "MeltingPoint": 1845, "BoilingPoint": 4300, "Density": 15.37, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 92, "Symbol": "U", "Name": "Uranium", "AtomicMass": 238.02891, "Electronegativity": 1.38, "AtomicRadius": 240, "IonizationEnergy": 597.6, "ElectronAffinity": 50, "MeltingPoint": 1405.3, "BoilingPoint": 4404, "Density": 19.05, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 93, "Symbol": "Np", "Name": "Neptunium", "AtomicMass": 237, "Electronegativity": 1.36, "AtomicRadius": 221, "IonizationEnergy": 604.5, "ElectronAffinity": null, "MeltingPoint": 917, "BoilingPoint": 4273, "Density": 20.45, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 94, "Symbol": "Pu", "Name": "Plutonium", "AtomicMass": 244, "Electronegativity": 1.28, "AtomicRadius": 243, "IonizationEnergy": 584.7, "ElectronAffinity": null, "MeltingPoint": 912.5, "BoilingPoint": 3501, "Density": 19.816, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 95, "Symbol": "Am", "Name": "Americium", "AtomicMass": 243, "Electronegativity": 1.3, "AtomicRadius": 244, "IonizationEnergy": 578, "ElectronAffinity": null, "MeltingPoint": 1449, "BoilingPoint": 2880, "Density": 13.67, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 96, "Symbol": "Cm", "Name": "Curium", "AtomicMass": 247, "Electronegativity": 1.3, "AtomicRadius": 245, "IonizationEnergy": 581, "ElectronAffinity": null, "MeltingPoint": 1613, "BoilingPoint": 3383, "Density": 13.51, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 97, "Symbol": "Bk", "Name": "Berkelium", "AtomicMass": 247, "Electronegativity": 1.3, "AtomicRadius": 244, "IonizationEnergy": 601, "ElectronAffinity": null, "MeltingPoint": 1259, "BoilingPoint": null, "Density": 14.78, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 98, "Symbol": "Cf", "Name": "Californium", "AtomicMass": 251, "Electronegativity": 1.3, "AtomicRadius": 245, "IonizationEnergy": 610, "ElectronAffinity": null, "MeltingPoint": 1173, "BoilingPoint": null, "Density": 15.1, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 99, "Symbol": "Es", "Name": "Einsteinium", "AtomicMass": 252, "Electronegativity": 1.3, "AtomicRadius": 245, "IonizationEnergy": 619, "ElectronAffinity": null, "MeltingPoint": 1133, "BoilingPoint": null, "Density": 8.84, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 100, "Symbol": "Fm", "Name": "Fermium", "AtomicMass": 257, "Electronegativity": 1.3, "AtomicRadius": null, "IonizationEnergy": 627, "ElectronAffinity": null, "MeltingPoint": 1800, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 101, "Symbol": "Md", "Name": "Mendelevium", "AtomicMass": 258, "Electronegativity": 1.3, "AtomicRadius": null, "IonizationEnergy": 635, "ElectronAffinity": null, "MeltingPoint": 1100, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 102, "Symbol": "No", "Name": "Nobelium", "AtomicMass": 259, "Electronegativity": 1.3, "AtomicRadius": null, "IonizationEnergy": 642, "ElectronAffinity": null, "MeltingPoint": 1100, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 103, "Symbol": "Lr", "Name": "Lawrencium", "AtomicMass": 262, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": 470, "ElectronAffinity": null, "MeltingPoint": 1900, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 3 },
+            { "AtomicNumber": 104, "Symbol": "Rf", "Name": "Rutherfordium", "AtomicMass": 267, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 4 },
+            { "AtomicNumber": 105, "Symbol": "Db", "Name": "Dubnium", "AtomicMass": 268, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 5 },
+            { "AtomicNumber": 106, "Symbol": "Sg", "Name": "Seaborgium", "AtomicMass": 269, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 6 },
+            { "AtomicNumber": 107, "Symbol": "Bh", "Name": "Bohrium", "AtomicMass": 270, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 7 },
+            { "AtomicNumber": 108, "Symbol": "Hs", "Name": "Hassium", "AtomicMass": 269, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 8 },
+            { "AtomicNumber": 109, "Symbol": "Mt", "Name": "Meitnerium", "AtomicMass": 278, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 9 },
+            { "AtomicNumber": 110, "Symbol": "Ds", "Name": "Darmstadtium", "AtomicMass": 281, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 10 },
+            { "AtomicNumber": 111, "Symbol": "Rg", "Name": "Roentgenium", "AtomicMass": 282, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 11 },
+            { "AtomicNumber": 112, "Symbol": "Cn", "Name": "Copernicium", "AtomicMass": 285, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 12 },
+            { "AtomicNumber": 113, "Symbol": "Nh", "Name": "Nihonium", "AtomicMass": 286, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 13 },
+            { "AtomicNumber": 114, "Symbol": "Fl", "Name": "Flerovium", "AtomicMass": 289, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 14 },
+            { "AtomicNumber": 115, "Symbol": "Mc", "Name": "Moscovium", "AtomicMass": 290, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 15 },
+            { "AtomicNumber": 116, "Symbol": "Lv", "Name": "Livermorium", "AtomicMass": 293, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 16 },
+            { "AtomicNumber": 117, "Symbol": "Ts", "Name": "Tennessine", "AtomicMass": 294, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 17 },
+            { "AtomicNumber": 118, "Symbol": "Og", "Name": "Oganesson", "AtomicMass": 294, "Electronegativity": null, "AtomicRadius": null, "IonizationEnergy": null, "ElectronAffinity": null, "MeltingPoint": null, "BoilingPoint": null, "Density": null, "Period": 7, "Group": 18 }
+        ];
+
+        // Define a professional and distinct color palette for each period
+        const periodColors = {
+            1: '#e6194b', // Red
+            2: '#3cb44b', // Green
+            3: '#ffe119', // Yellow
+            4: '#4363d8', // Blue
+            5: '#f58231', // Orange
+            6: '#911eb4', // Purple
+            7: '#46f0f0', // Cyan
+        };
+
+        const propertyTitles = {
+            "AtomicRadius": "Atomic Radius (picometers, pm)",
+            "AtomicMass": "Atomic Mass (amu)",
+            "Electronegativity": "Electronegativity (Pauling)",
+            "IonizationEnergy": "Ionization Energy (kJ/mol)",
+            "ElectronAffinity": "Electron Affinity (kJ/mol)",
+            "MeltingPoint": "Melting Point (K)",
+            "BoilingPoint": "Boiling Point (K)",
+            "Density": "Density (g/cm³)"
+        };
+
+        function updatePlot(selectedProperty) {
+            // Filter out elements that do not have data for the selected property
+            const filteredData = elementsData.filter(el => el[selectedProperty] !== null && el[selectedProperty] !== undefined);
+
+            const xValues = filteredData.map(el => el.AtomicNumber);
+            const yValues = filteredData.map(el => el[selectedProperty]);
+            const colors = filteredData.map(el => periodColors[el.Period] || '#808080'); // Fallback grey
+            const textLabels = filteredData.map(el =>
+                `<b>${el.Symbol}</b> (${el.Name})<br>` +
+                `Atomic Number: ${el.AtomicNumber}<br>` +
+                `Period: ${el.Period}<br>` +
+                `Group: ${el.Group}<br>` +
+                `${propertyTitles[selectedProperty]}: ${el[selectedProperty]}`
+            );
+
+            const trace = {
+                x: xValues,
+                y: yValues,
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: selectedProperty,
+                text: filteredData.map(el => el.Symbol),
+                textposition: 'top center',
+                hoverinfo: 'text',
+                hovertext: textLabels,
+                line: {
+                    color: '#000000', // Black line color
+                    width: 2
+                },
+                marker: {
+                    size: 6,
+                    color: colors, // Color by period
+                    line: {
+                        color: 'rgba(0, 0, 0, 0.4)',
+                        width: 0.5
+                    },
+                    symbol: 'circle',
+                },
+                textfont: {
+                    family: 'Inter, sans-serif',
+                    size: 8,
+                    color: '#333'
+                }
+            };
+
+            const layout = {
+                title: {
+                    text: `Periodic Trend of ${propertyTitles[selectedProperty]}`,
+                    font: {
+                        family: 'Inter',
+                        size: 24,
+                        color: '#333'
+                    },
+                    yref: 'paper',
+                    y: 0.95
+                },
+                xaxis: {
+                    title: {
+                        text: 'Atomic Number (Z)',
+                        font: {
+                            family: 'Inter',
+                            size: 16,
+                            color: '#444'
+                        }
+                    },
+                    zeroline: false,
+                    tickmode: 'linear',
+                    dtick: 10,
+                    gridcolor: '#e0e0e0',
+                    rangemode: 'tozero',
+                    autorange: true
+                },
+                yaxis: {
+                    title: {
+                        text: propertyTitles[selectedProperty],
+                        font: {
+                            family: 'Inter',
+                            size: 16,
+                            color: '#444'
+                        }
+                    },
+                    zeroline: false,
+                    gridcolor: '#e0e0e0',
+                    rangemode: 'tozero',
+                    autorange: true
+                },
+                hovermode: 'closest',
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff',
+                margin: {
+                    l: 80, r: 80, b: 80, t: 100
+                },
+                showlegend: false,
+                responsive: true
+            };
+
+            Plotly.newPlot('plot', [trace], layout);
+        }
+
+        // Initialize the plot on page load
+        window.onload = function() {
+            const propertySelect = document.getElementById('property-select');
+            updatePlot(propertySelect.value); // Plot Atomic Radius by default
+
+            // Add event listener for dropdown change
+            propertySelect.addEventListener('change', (event) => {
+                updatePlot(event.target.value);
+            });
+
+            // Add event listener for window resize to ensure responsiveness
+            window.addEventListener('resize', function() {
+                Plotly.relayout('plot', {
+                    width: document.getElementById('plot').clientWidth,
+                    height: document.getElementById('plot').clientHeight
+                });
+            });
+        };
+    </script>
+</body>
+</html>
