@@ -3,42 +3,638 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
-    <title>Projectile Motion</title>
-    <link rel="shortcut icon" href="../../images/favicon.png" type="image/png">
-    <link rel="stylesheet" href="./projectileMotion.css">
-    <link rel="stylesheet" href="../../cards.css">
+    <title>Projectile Motion Visualizer</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f0f4f8; /* Light background, custom hex as Bootstrap's bg-light might not be exact */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Prevent body scroll */
+        }
+        .home-button-container {
+            position: absolute;
+            top: 1.5rem; /* Top margin */
+            left: 1.5rem; /* Left margin */
+            z-index: 10; /* Ensure it's above other elements */
+        }
+        canvas {
+            background-color: #e2e8f0; /* Slightly darker canvas background, custom hex */
+            display: block;
+            border-radius: 0.75rem; /* Bootstrap rounded-3 provides .5rem, custom for .75 */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Custom shadow for depth */
+            touch-action: none; /* Prevent browser default touch actions */
+        }
+        .container-custom { /* Custom class to manage max-width and internal padding */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            max-width: 90%;
+            width: 100%;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column; /* Changed to column for better layout with stats */
+            flex-wrap: wrap;
+            gap: 1rem; /* Custom gap, Bootstrap g-* only goes up to 5 */
+            margin-bottom: 1.5rem;
+            justify-content: center;
+            align-items: center; /* Center items in column */
+        }
+        .input-group-custom { /* Custom for specific flex/margin */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .input-group-custom label {
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        .input-group-custom input {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.5rem; /* Bootstrap rounded-2 is .25rem, custom for .5rem */
+            font-size: 1rem;
+            color: #2d3748;
+            background-color: #ffffff;
+            transition: border-color 0.2s ease-in-out;
+            width: 100px; /* Fixed width for inputs */
+        }
+        .input-group-custom input:focus {
+            outline: none;
+            border-color: #6366f1; /* Custom focus color */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Custom focus ring */
+        }
+        .action-buttons { /* Kept for a single button but good for future expansion */
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .simulate-button {
+            padding: 0.8rem 1.5rem;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* Gradient for button - custom as Bootstrap doesn't have this directly */
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+            /* Bubble effect on hover - custom as Bootstrap doesn't have this directly */
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .simulate-button:hover {
+            background-color: #4f46e5; /* Darker indigo on hover */
+            transform: translateY(-2px); /* Slightly lift on hover */
+        }
+        .simulate-button:active {
+            transform: translateY(0); /* Press down on active */
+        }
+        /* Bubble effect */
+        .simulate-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: width 0.4s ease-out, height 0.4s ease-out, opacity 0.4s ease-out;
+            z-index: -1;
+        }
+        .simulate-button:hover::before {
+            width: 200%;
+            height: 200%;
+            opacity: 1;
+        }
+        .stats-container {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-top: 1.5rem; /* Re-added margin-top */
+            width: 100%; /* Full width within controls */
+            max-width: 250px; /* Limit width */
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+        .stat-item:last-child {
+            margin-bottom: 0;
+        }
+        .stat-label {
+            font-weight: 500;
+        }
+        .stat-value {
+            font-weight: 600;
+            color: #4338ca; /* Custom color for values */
+        }
+
+        /* Responsive adjustments for Bootstrap */
+        @media (min-width: 576px) { /* sm breakpoint */
+            .controls {
+                justify-content: center;
+                align-items: center;
+            }
+            .input-group-custom input {
+                width: 120px;
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .container-custom {
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: flex-start;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-right: 2rem; /* Space between controls and canvas */
+                margin-bottom: 0;
+            }
+            .simulate-button {
+                margin-top: 1rem;
+            }
+            .stats-container {
+                margin-top: 1rem; /* Adjust margin for desktop layout */
+            }
+        }
+        @media (min-width: 992px) { /* lg breakpoint */
+            .container-custom {
+                max-width: 1000px;
+            }
+            canvas {
+                width: 600px;
+                height: 400px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <a class="btn btn-outline-dark" href="../../index.html" id="home">Home</a>
+    <div class="container-custom">
+    <div class="home-button-container">
+        <a href="../../index.html" class="btn btn-outline-dark" id="homeBtn">Home</a>
+    </div>
+        <div class="controls">
+            <h1 class="fs-3 fw-bold text-dark mb-4 w-100 text-center">Projectile Motion</h1>
+            <div class="input-group-custom">
+                <label for="angle" class="form-label">Launch Angle (degrees):</label>
+                <input type="number" id="angle" value="45" min="0" max="90" step="1" class="form-control">
+            </div>
+            <div class="input-group-custom">
+                <label for="velocity" class="form-label">Initial Velocity (m/s):</label>
+                <input type="number" id="velocity" value="50" min="1" step="1" class="form-control">
+            </div>
+            <div class="action-buttons">
+                <button id="simulateBtn" class="simulate-button">Simulate</button>
+            </div>
 
-    <img id="image" src="image.jpg" class="card-img-top" alt="Projectile Motion">
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">Projectile Motion</h5>
-          <input placeholder="initial velocity(u)" class="form-control" type="number" id="u">
-          <input placeholder="angle(in degree)" class="form-control" type="number" id="angle">
-          <input placeholder="acceleration due to gravity(g)" class="form-control" type="number" id="g">
-          <span id="T"></span>
-          <span id="H"></span>
-          <span id="R"></span>
-          <button onclick="calculate()" class="btn btn-primary">Calculate</button>
+            <!-- Display Calculations - now back inside controls -->
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">Max Height:</span>
+                    <span id="maxHeight" class="stat-value">0.00 m</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Time Taken:</span>
+                    <span id="timeTaken" class="stat-value">0.00 s</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Range:</span>
+                    <span id="range" class="stat-value">0.00 m</span>
+                </div>
+            </div>
         </div>
-      </div>
+        <canvas id="projectileCanvas"></canvas>
+    </div>
 
-    <script src="./projectileMotion.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-        crossorigin="anonymous"></script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script type="module">
+        // Global variables for Three.js scene
+        let scene, camera, renderer;
+        let ball, trajectoryLine;
+        let initialVelocityVector; // Three.js ArrowHelper for velocity vector
+        let angleArc;             // Three.js Line for angle arc
+        let angleTextSprite;      // For displaying the angle value
+        let animationFrameId; // To store the requestAnimationFrame ID
+
+        // Physics constants
+        const GRAVITY = 9.81; // m/s^2
+        const TIME_STEP = 0.01; // seconds
+
+        // Projectile motion variables
+        let initialVelocity = 0;
+        let launchAngleRad = 0;
+        let time = 0;
+        let isSimulating = false;
+
+        // HTML elements for displaying calculations
+        let maxHeightDisplay, timeTakenDisplay, rangeDisplay;
+
+        // Mouse interaction for camera control
+        let isMouseDown = false;
+        let previousMouseX = 0;
+        let previousMouseY = 0;
+
+        // Store latest calculated stats (kept for calculation display)
+        let currentMaxHeight = 0;
+        let currentTimeTaken = 0;
+        let currentRange = 0;
+
+        /**
+         * Initializes the Three.js scene, camera, and renderer.
+         * Sets up the canvas and adds initial objects.
+         */
+        function init() {
+            // Get canvas element
+            const canvas = document.getElementById('projectileCanvas');
+
+            // Get display elements
+            maxHeightDisplay = document.getElementById('maxHeight');
+            timeTakenDisplay = document.getElementById('timeTaken');
+            rangeDisplay = document.getElementById('range');
+
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera (Orthographic for 2D visualization)
+            const aspect = canvas.clientWidth / canvas.clientHeight;
+            camera = new THREE.OrthographicCamera(-100 * aspect, 100 * aspect, 100, -100, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            onWindowResize();
+
+            // Ball object
+            const ballGeometry = new THREE.SphereGeometry(1, 32, 32);
+            const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            ball = new THREE.Mesh(ballGeometry, ballMaterial);
+            scene.add(ball);
+
+            // Ground plane (simple line for visual reference)
+            const groundMaterial = new THREE.LineBasicMaterial({ color: 0x006400, linewidth: 2 });
+            const groundPoints = [];
+            groundPoints.push(new THREE.Vector3(-1000, 0, 0));
+            groundPoints.push(new THREE.Vector3(1000, 0, 0));
+            const groundGeometry = new THREE.BufferGeometry().setFromPoints(groundPoints);
+            const groundLine = new THREE.Line(groundGeometry, groundMaterial);
+            scene.add(groundLine);
+
+            // Trajectory line
+            const trajectoryMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+            const trajectoryGeometry = new THREE.BufferGeometry();
+            trajectoryLine = new THREE.Line(trajectoryGeometry, trajectoryMaterial);
+            scene.add(trajectoryLine);
+
+            // Event Listeners
+            document.getElementById('simulateBtn').addEventListener('click', startSimulation);
+            window.addEventListener('resize', onWindowResize);
+
+            // Mouse interaction for camera movement (pan)
+            canvas.addEventListener('mousedown', onMouseDown);
+            canvas.addEventListener('mouseup', onMouseUp);
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('wheel', onMouseWheel); // For zooming
+        }
+
+        /**
+         * Handles window resize events to update canvas size and camera aspect ratio.
+         */
+        function onWindowResize() {
+            const canvas = renderer.domElement;
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+
+            // Update renderer size
+            renderer.setSize(width, height);
+
+            // Update camera projection
+            const aspect = width / height;
+            const frustumSize = camera.top - camera.bottom; // Keep the height constant
+            camera.left = -frustumSize * aspect / 2;
+            camera.right = frustumSize * aspect / 2;
+            camera.top = frustumSize / 2;
+            camera.bottom = -frustumSize / 2;
+
+            camera.updateProjectionMatrix();
+        }
+
+        /**
+         * Cleans up previous velocity vector and angle visuals.
+         */
+        function cleanupVisuals() {
+            if (initialVelocityVector) {
+                scene.remove(initialVelocityVector);
+                // ArrowHelper does not have a .dispose() method directly,
+                // but its internal components (line and cone) do.
+                if (initialVelocityVector.line) {
+                    initialVelocityVector.line.geometry.dispose();
+                    initialVelocityVector.line.material.dispose();
+                }
+                if (initialVelocityVector.cone) {
+                    initialVelocityVector.cone.geometry.dispose();
+                    initialVelocityVector.cone.material.dispose();
+                }
+                initialVelocityVector = null;
+            }
+            if (angleArc) {
+                scene.remove(angleArc);
+                angleArc.geometry.dispose();
+                angleArc.material.dispose();
+                angleArc = null;
+            }
+            if (angleTextSprite) {
+                scene.remove(angleTextSprite);
+                // Dispose of the texture used by the sprite material
+                if (angleTextSprite.material.map) {
+                    angleTextSprite.material.map.dispose();
+                }
+                angleTextSprite.material.dispose();
+                angleTextSprite = null;
+            }
+        }
+
+        /**
+         * Creates a text sprite for displaying values.
+         * @param {string} message - The text message to display.
+         * @param {number} x - X position.
+         * @param {number} y - Y position.
+         * @param {number} z - Z position.
+         * @returns {THREE.Sprite} The created text sprite.
+         */
+        function createTextSprite(message, x, y, z) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const fontSize = 32; // Increased for better visibility
+            context.font = `Bold ${fontSize}px Arial`;
+            context.fillStyle = "rgba(0, 0, 0, 1)";
+            
+            // Measure text width to set canvas dimensions correctly
+            const textMetrics = context.measureText(message);
+            canvas.width = textMetrics.width;
+            canvas.height = fontSize * 1.2; // A bit more height for padding
+
+            // Clear canvas and draw text
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.font = `Bold ${fontSize}px Arial`; // Re-set font after canvas resize
+            context.fillStyle = "rgba(0, 0, 0, 1)";
+            context.fillText(message, 0, fontSize);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Scale sprite based on canvas text dimensions to maintain aspect ratio
+            sprite.scale.set(canvas.width / 10, canvas.height / 10, 1); // Adjust scale factor as needed
+            sprite.position.set(x, y, z);
+            return sprite;
+        }
+
+        /**
+         * Starts the projectile motion simulation.
+         * Resets the ball's position, clears previous trajectory, and calculates new path.
+         */
+        function startSimulation() {
+            // Cancel any existing animation frame
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            // Cleanup previous vector and angle visuals
+            cleanupVisuals();
+
+            // Get user inputs
+            initialVelocity = parseFloat(document.getElementById('velocity').value);
+            let launchAngleDeg = parseFloat(document.getElementById('angle').value);
+
+            // Validate inputs
+            if (isNaN(initialVelocity) || initialVelocity <= 0) {
+                console.error("Please enter a valid initial velocity greater than 0.");
+                return;
+            }
+            if (isNaN(launchAngleDeg) || launchAngleDeg < 0 || launchAngleDeg > 90) {
+                console.error("Please enter a valid launch angle between 0 and 90 degrees.");
+                return;
+            }
+
+            launchAngleRad = THREE.MathUtils.degToRad(launchAngleDeg); // Convert degrees to radians
+
+            // Reset simulation state
+            time = 0;
+            isSimulating = true;
+            ball.position.set(0, 0, 0); // Start ball at origin
+
+            // Clear previous trajectory
+            trajectoryLine.geometry.dispose(); // Dispose old geometry
+            trajectoryLine.geometry = new THREE.BufferGeometry(); // Create new empty geometry
+            trajectoryLine.geometry.setFromPoints([]); // Ensure it's empty
+
+            // Calculate the full trajectory path beforehand
+            const trajectoryPoints = [];
+            const initialVx = initialVelocity * Math.cos(launchAngleRad);
+            const initialVy = initialVelocity * Math.sin(launchAngleRad);
+
+            let maxTime = 0;
+            if (initialVy >= 0) {
+                 // Time of flight (when y returns to 0)
+                maxTime = (2 * initialVy) / GRAVITY;
+            } else {
+                maxTime = 0;
+            }
+
+            // Calculate max height and range based on formulas
+            currentMaxHeight = (initialVy * initialVy) / (2 * GRAVITY);
+            currentRange = initialVx * maxTime;
+            currentTimeTaken = maxTime;
+
+            // Display initial calculations
+            maxHeightDisplay.textContent = `${currentMaxHeight.toFixed(2)} m`;
+            timeTakenDisplay.textContent = `${currentTimeTaken.toFixed(2)} s`;
+            rangeDisplay.textContent = `${currentRange.toFixed(2)} m`;
+
+            // --- Create Initial Velocity Vector ---
+            const origin = new THREE.Vector3(0, 0, 0);
+            const direction = new THREE.Vector3(
+                Math.cos(launchAngleRad),
+                Math.sin(launchAngleRad),
+                0
+            ).normalize(); // Normalize to get a unit vector
+
+            const length = initialVelocity * 0.5; // Scale length for visualization
+            const hex = 0x00ff00; // Green color for velocity vector
+            initialVelocityVector = new THREE.ArrowHelper(direction, origin, length, hex);
+            scene.add(initialVelocityVector);
+
+            // --- Create Angle Arc ---
+            const radius = 5; // Radius of the arc
+            const segments = 32; // Number of segments for the arc
+            const arcPoints = [];
+            for (let i = 0; i <= segments; i++) {
+                const angle = (launchAngleRad / segments) * i;
+                arcPoints.push(new THREE.Vector3(radius * Math.cos(angle), radius * Math.sin(angle), 0));
+            }
+            const arcGeometry = new THREE.BufferGeometry().setFromPoints(arcPoints);
+            const arcMaterial = new THREE.LineBasicMaterial({ color: 0x888888, linewidth: 1 }); // Grey
+            angleArc = new THREE.Line(arcGeometry, arcMaterial);
+            scene.add(angleArc);
+
+            // --- Create Angle Text Sprite ---
+            // Position the text slightly outside the arc
+            const textAngle = launchAngleRad / 2; // Midpoint of the angle for text
+            const textX = (radius + 2) * Math.cos(textAngle);
+            const textY = (radius + 2) * Math.sin(textAngle);
+            angleTextSprite = createTextSprite(`${launchAngleDeg.toFixed(0)}°`, textX, textY, 0);
+            scene.add(angleTextSprite);
+
+
+            for (let t = 0; t <= maxTime + TIME_STEP; t += TIME_STEP) {
+                const x = initialVx * t;
+                const y = initialVy * t - 0.5 * GRAVITY * t * t;
+
+                if (y < -1 && t > 0) { // Stop if it goes significantly below ground after starting
+                    break;
+                }
+                trajectoryPoints.push(new THREE.Vector3(x, y, 0));
+            }
+
+            // Update trajectory line geometry
+            trajectoryLine.geometry.setFromPoints(trajectoryPoints);
+
+            // Start animation loop
+            animate();
+        }
+
+        /**
+         * Animation loop that updates the ball's position based on projectile motion equations.
+         */
+        function animate() {
+            animationFrameId = requestAnimationFrame(animate);
+
+            if (isSimulating) {
+                // Calculate current position
+                const currentVx = initialVelocity * Math.cos(launchAngleRad);
+                const currentVy = initialVelocity * Math.sin(launchAngleRad);
+
+                const x = currentVx * time;
+                const y = currentVy * time - 0.5 * GRAVITY * time * time;
+
+                // Update ball position
+                ball.position.set(x, y, 0);
+
+                // Stop simulation if ball hits or goes below ground (considering small tolerance)
+                if (y < -0.1 && time > 0.1) {
+                    isSimulating = false;
+                    cancelAnimationFrame(animationFrameId);
+                }
+
+                // Increment time
+                time += TIME_STEP;
+            }
+
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+
+        // Camera Pan Controls
+        /**
+         * Handles mouse down event for camera panning.
+         * @param {MouseEvent} event - The mouse event.
+         */
+        function onMouseDown(event) {
+            isMouseDown = true;
+            previousMouseX = event.clientX;
+            previousMouseY = event.clientY;
+        }
+
+        /**
+         * Handles mouse up event for camera panning.
+         */
+        function onMouseUp() {
+            isMouseDown = false;
+        }
+
+        /**
+         * Handles mouse move event for camera panning.
+         * @param {MouseEvent} event - The mouse event.
+         */
+        function onMouseMove(event) {
+            if (!isMouseDown) return;
+
+            const deltaX = event.clientX - previousMouseX;
+            const deltaY = event.clientY - previousMouseY;
+
+            // Pan the camera based on mouse movement
+            // Scale pan speed based on current camera zoom level
+            const panSpeed = (camera.right - camera.left) / renderer.domElement.clientWidth;
+            camera.position.x -= deltaX * panSpeed;
+            camera.position.y += deltaY * panSpeed; // Y-axis is inverted for camera pan
+
+            camera.updateProjectionMatrix();
+
+            previousMouseX = event.clientX;
+            previousMouseY = event.clientY;
+
+            renderer.render(scene, camera); // Re-render after camera move
+        }
+
+        /**
+         * Handles mouse wheel event for zooming in/out the camera.
+         * @param {WheelEvent} event - The wheel event.
+         */
+        function onMouseWheel(event) {
+            event.preventDefault(); // Prevent page scrolling
+
+            const zoomSpeed = 0.05;
+            const currentFrustumSize = camera.top - camera.bottom;
+            const newFrustumSize = currentFrustumSize * (1 - event.deltaY * zoomSpeed * 0.01);
+
+            // Clamp zoom to prevent excessively large or small frustum sizes
+            const minFrustumSize = 10;
+            const maxFrustumSize = 500;
+            const clampedFrustumSize = Math.max(minFrustumSize, Math.min(maxFrustumSize, newFrustumSize));
+
+            const aspect = renderer.domElement.clientWidth / renderer.domElement.clientHeight;
+
+            camera.left = -clampedFrustumSize * aspect / 2;
+            camera.right = clampedFrustumSize * aspect / 2;
+            camera.top = clampedFrustumSize / 2;
+            camera.bottom = -clampedFrustumSize / 2;
+
+            camera.updateProjectionMatrix();
+            renderer.render(scene, camera); // Re-render after zoom
+        }
+
+
+        // Start the application when the window loads
+        window.onload = function() {
+            init();
+            startSimulation(); // Run a default simulation on load
+        };
+    </script>
 </body>
-
 </html>
