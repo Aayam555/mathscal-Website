@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elements by Atomic Number</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            color: #334155; /* Dark slate text */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        h1, h2 {
+            color: #1e293b; /* Even darker blue-gray for headings */
+            font-weight: 700;
+        }
+        .element-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+        .element-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Soft shadow */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer; /* Indicate clickable */
+        }
+        .element-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+        .element-number {
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 600;
+            color: #64748b; /* Medium slate */
+            margin-bottom: 0.5rem;
+        }
+        .element-symbol {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700;
+            color: #0f172a; /* Very dark blue-gray */
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .element-name {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+        .element-detail {
+            font-size: 0.9375rem; /* slightly larger than text-sm */
+            line-height: 1.5;
+            color: #475569; /* Slate text */
+        }
+
+        /* Modal specific styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            width: 90%; /* Responsive width */
+            max-width: 700px; /* Max width for larger screens */
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            color: #aaa;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            line-height: 1; /* Adjust line height to center 'x' */
+            padding: 0; /* Remove default padding */
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #threejs-container {
+            width: 100%;
+            height: 400px; /* Fixed height for the canvas */
+            background-color: #e2e8f0; /* Light gray background for canvas */
+            border-radius: 0.75rem;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1); /* Inner shadow for depth */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Hide overflow for canvas */
+            cursor: grab; /* Indicate draggable */
+            position: relative; /* For positioning the element name overlay */
+            margin-top: 1rem; /* Space below title */
+        }
+        canvas {
+            display: block; /* Remove extra space below canvas */
+        }
+        #element-name-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+        #element-info-details {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        #element-info-details div span:first-child {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .element-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            }
+            .modal-content {
+                width: 95%; /* Wider on small screens */
+                padding: 1rem;
+            }
+            #threejs-container {
+                height: 300px;
+            }
+            #element-name-overlay {
+                font-size: 1rem;
+                padding: 0.3rem 0.6rem;
+            }
+            #element-info-details {
+                grid-template-columns: 1fr; /* Stack details on small screens */
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 antialiased">
+   <a style="width: 80px; margin: 10px;" class="btn btn-outline-dark" href="../../index.html" id="home">Home</a>
+
+    <main class="flex-grow">
+        <div class="container py-8">
+            <section class="mb-10">
+                <h2 class="text-3xl font-semibold mb-6 text-center">Elements by Atomic Number</h2>
+                <p class="text-lg text-center mb-8 text-gray-700">
+                    Explore all known elements and their fundamental properties, ordered by their atomic number. Click any card for a 3D model!
+                </p>
+                <div class="mb-8">
+                    <input type="text" id="search-bar" placeholder="Search by name or symbol..."
+                           class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg">
+                </div>
+                <div class="element-grid">
+                    <!-- Element Cards will be dynamically inserted here by JavaScript -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- The Modal Pop-up Structure -->
+    <div id="atom-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="close-modal">&times;</span>
+            <h3 class="text-2xl font-semibold mb-4 text-center text-indigo-700">Conceptual 3D Atom Model</h3>
+            <div id="threejs-container" class="relative">
+                <!-- Three.js canvas will be appended here -->
+                <div id="loading-spinner" class="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-75 rounded-lg text-indigo-700 text-xl font-bold">
+                    Loading 3D Model...
+                </div>
+                <div id="element-name-overlay" class="hidden"></div>
+            </div>
+            <div id="element-info-details" class="text-center">
+                <!-- Additional element details will be loaded here -->
+            </div>
+            <p class="text-md text-center mt-4 text-gray-600">
+                This conceptual model visually adjusts its nucleus size and number of orbiting electrons based on the atomic number.
+                Click and drag to rotate the view.
+            </p>
+        </div>
+    </div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Data for all 118 elements with additional properties
+            const allElements = [
+                // Data compiled from various sources including PubChem, Wikipedia, PTable.com
+                // Note: Some values (especially for synthetic or very unstable elements) might be theoretical, estimated, or unknown (N/A).
+                // Electronegativity (Pauling Scale), Electron Affinity (eV), Density (g/cm³ at STP), Atomic Radius (pm), Melting Point (K), Boiling Point (K)
+                { atomicNumber: 1, symbol: "H", name: "Hydrogen", atomicMass: 1.008, electronegativity: 2.20, electronAffinity: 0.754, density: 0.0000899, atomicRadius: 53, state: "Gas", meltingPoint: 13.99, boilingPoint: 20.27, uses: "Rocket fuel, water component" },
+                { atomicNumber: 2, symbol: "He", name: "Helium", atomicMass: 4.0026, electronegativity: null, electronAffinity: -0.5, density: 0.0001785, atomicRadius: 31, state: "Gas", meltingPoint: 0.95, boilingPoint: 4.22, uses: "Balloons, cryogenics" },
+                { atomicNumber: 3, symbol: "Li", name: "Lithium", atomicMass: 6.94, electronegativity: 0.98, electronAffinity: 0.618, density: 0.534, atomicRadius: 167, state: "Solid", meltingPoint: 453.69, boilingPoint: 1615, uses: "Batteries, ceramics" },
+                { atomicNumber: 4, symbol: "Be", name: "Beryllium", atomicMass: 9.0122, electronegativity: 1.57, electronAffinity: -0.5, density: 1.848, atomicRadius: 112, state: "Solid", meltingPoint: 1560, boilingPoint: 2742, uses: "Alloys, X-ray windows" },
+                { atomicNumber: 5, symbol: "B", name: "Boron", atomicMass: 10.81, electronegativity: 2.04, electronAffinity: 0.277, density: 2.34, atomicRadius: 87, state: "Solid", meltingPoint: 2348, boilingPoint: 4273, uses: "Borax, semiconductors" },
+                { atomicNumber: 6, symbol: "C", name: "Carbon", atomicMass: 12.011, electronegativity: 2.55, electronAffinity: 1.263, density: 2.26, atomicRadius: 67, state: "Solid", meltingPoint: 3825, boilingPoint: 4098, uses: "Organic life, diamonds" },
+                { atomicNumber: 7, symbol: "N", name: "Nitrogen", atomicMass: 14.007, electronegativity: 3.04, electronAffinity: -0.07, density: 0.001251, atomicRadius: 56, state: "Gas", meltingPoint: 63.15, boilingPoint: 77.36, uses: "Fertilizers, ammonia" },
+                { atomicNumber: 8, symbol: "O", name: "Oxygen", atomicMass: 15.999, electronegativity: 3.44, electronAffinity: 1.461, density: 0.001429, atomicRadius: 48, state: "Gas", meltingPoint: 54.36, boilingPoint: 90.19, uses: "Respiration, combustion" },
+                { atomicNumber: 9, symbol: "F", name: "Fluorine", atomicMass: 18.998, electronegativity: 3.98, electronAffinity: 3.401, density: 0.001696, atomicRadius: 42, state: "Gas", meltingPoint: 53.53, boilingPoint: 85.03, uses: "Toothpaste, refrigerants" },
+                { atomicNumber: 10, symbol: "Ne", name: "Neon", atomicMass: 20.180, electronegativity: null, electronAffinity: -1.2, density: 0.0009, atomicRadius: 38, state: "Gas", meltingPoint: 24.56, boilingPoint: 27.10, uses: "Neon signs, lasers" },
+                { atomicNumber: 11, symbol: "Na", name: "Sodium", atomicMass: 22.990, electronegativity: 0.93, electronAffinity: 0.548, density: 0.968, atomicRadius: 190, state: "Solid", meltingPoint: 370.95, boilingPoint: 1156, uses: "Salt, streetlights" },
+                { atomicNumber: 12, symbol: "Mg", name: "Magnesium", atomicMass: 24.305, electronegativity: 1.31, electronAffinity: -0.4, density: 1.738, atomicRadius: 145, state: "Solid", meltingPoint: 923, boilingPoint: 1363, uses: "Alloys, fireworks" },
+                { atomicNumber: 13, symbol: "Al", name: "Aluminum", atomicMass: 26.982, electronegativity: 1.61, electronAffinity: 0.433, density: 2.70, atomicRadius: 118, state: "Solid", meltingPoint: 933.47, boilingPoint: 2792, uses: "Aircraft, cans" },
+                { atomicNumber: 14, symbol: "Si", name: "Silicon", atomicMass: 28.085, electronegativity: 1.90, electronAffinity: 1.385, density: 2.329, atomicRadius: 111, state: "Solid", meltingPoint: 1687, boilingPoint: 3538, uses: "Semiconductors, glass" },
+                { atomicNumber: 15, symbol: "P", name: "Phosphorus", atomicMass: 30.974, electronegativity: 2.19, electronAffinity: 0.746, density: 1.82, atomicRadius: 98, state: "Solid", meltingPoint: 317.3, boilingPoint: 553.65, uses: "Fertilizers, detergents" },
+                { atomicNumber: 16, symbol: "S", name: "Sulfur", atomicMass: 32.06, electronegativity: 2.58, electronAffinity: 2.077, density: 2.07, atomicRadius: 87, state: "Solid", meltingPoint: 388.36, boilingPoint: 717.75, uses: "Sulfuric acid, rubber" },
+                { atomicNumber: 17, symbol: "Cl", name: "Chlorine", atomicMass: 35.45, electronegativity: 3.16, electronAffinity: 3.617, density: 0.003214, atomicRadius: 79, state: "Gas", meltingPoint: 172.17, boilingPoint: 239.11, uses: "Disinfectant, PVC" },
+                { atomicNumber: 18, symbol: "Ar", name: "Argon", atomicMass: 39.948, electronegativity: null, electronAffinity: -1.0, density: 0.001784, atomicRadius: 71, state: "Gas", meltingPoint: 83.81, boilingPoint: 87.30, uses: "Welding, light bulbs" },
+                { atomicNumber: 19, symbol: "K", name: "Potassium", atomicMass: 39.098, electronegativity: 0.82, electronAffinity: 0.501, density: 0.862, atomicRadius: 243, state: "Solid", meltingPoint: 336.53, boilingPoint: 1032, uses: "Fertilizers, soaps" },
+                { atomicNumber: 20, symbol: "Ca", name: "Calcium", atomicMass: 40.078, electronegativity: 1.00, electronAffinity: 0.024, density: 1.55, atomicRadius: 194, state: "Solid", meltingPoint: 1115, boilingPoint: 1757, uses: "Bones, cement" },
+                { atomicNumber: 21, symbol: "Sc", name: "Scandium", atomicMass: 44.956, electronegativity: 1.36, electronAffinity: 0.188, density: 2.99, atomicRadius: 184, state: "Solid", meltingPoint: 1814, boilingPoint: 3109, uses: "Aluminum alloys, sports equipment" },
+                { atomicNumber: 22, symbol: "Ti", name: "Titanium", atomicMass: 47.867, electronegativity: 1.54, electronAffinity: 0.079, density: 4.54, atomicRadius: 176, state: "Solid", meltingPoint: 1941, boilingPoint: 3560, uses: "Aerospace, medical implants" },
+                { atomicNumber: 23, symbol: "V", name: "Vanadium", atomicMass: 50.942, electronegativity: 1.63, electronAffinity: 0.525, density: 6.11, atomicRadius: 171, state: "Solid", meltingPoint: 2183, boilingPoint: 3680, uses: "Steel alloys, catalysts" },
+                { atomicNumber: 24, symbol: "Cr", name: "Chromium", atomicMass: 51.996, electronegativity: 1.66, electronAffinity: 0.676, density: 7.19, atomicRadius: 166, state: "Solid", meltingPoint: 2180, boilingPoint: 2944, uses: "Stainless steel, plating" },
+                { atomicNumber: 25, symbol: "Mn", name: "Manganese", atomicMass: 54.938, electronegativity: 1.55, electronAffinity: -0.5, density: 7.43, atomicRadius: 161, state: "Solid", meltingPoint: 1519, boilingPoint: 2334, uses: "Steel production, batteries" },
+                { atomicNumber: 26, symbol: "Fe", name: "Iron", atomicMass: 55.845, electronegativity: 1.83, electronAffinity: 0.153, density: 7.874, atomicRadius: 156, state: "Solid", meltingPoint: 1811, boilingPoint: 3134, uses: "Steel, construction" },
+                { atomicNumber: 27, symbol: "Co", name: "Cobalt", atomicMass: 58.933, electronegativity: 1.88, electronAffinity: 0.661, density: 8.90, atomicRadius: 152, state: "Solid", meltingPoint: 1768, boilingPoint: 3200, uses: "Batteries, magnets" },
+                { atomicNumber: 28, symbol: "Ni", name: "Nickel", atomicMass: 58.693, electronegativity: 1.91, electronAffinity: 1.156, density: 8.90, atomicRadius: 149, state: "Solid", meltingPoint: 1728, boilingPoint: 3186, uses: "Stainless steel, coins" },
+                { atomicNumber: 29, symbol: "Cu", name: "Copper", atomicMass: 63.546, electronegativity: 1.90, electronAffinity: 1.228, density: 8.96, atomicRadius: 145, state: "Solid", meltingPoint: 1357.77, boilingPoint: 2835, uses: "Wiring, pipes" },
+                { atomicNumber: 30, symbol: "Zn", name: "Zinc", atomicMass: 65.38, electronegativity: 1.65, electronAffinity: -0.6, density: 7.134, atomicRadius: 142, state: "Solid", meltingPoint: 692.68, boilingPoint: 1180, uses: "Galvanizing, brass" },
+                { atomicNumber: 31, symbol: "Ga", name: "Gallium", atomicMass: 69.723, electronegativity: 1.81, electronAffinity: 0.3, density: 5.904, atomicRadius: 136, state: "Solid", meltingPoint: 302.91, boilingPoint: 2477, uses: "LEDs, semiconductors" },
+                { atomicNumber: 32, symbol: "Ge", name: "Germanium", atomicMass: 72.63, electronegativity: 2.01, electronAffinity: 1.35, density: 5.323, atomicRadius: 125, state: "Solid", meltingPoint: 1211.4, boilingPoint: 3106, uses: "Fiber optics, semiconductors" },
+                { atomicNumber: 33, symbol: "As", name: "Arsenic", atomicMass: 74.922, electronegativity: 2.18, electronAffinity: 0.81, density: 5.727, atomicRadius: 114, state: "Solid", meltingPoint: 1090, boilingPoint: 887, uses: "Semiconductors, pesticides" },
+                { atomicNumber: 34, symbol: "Se", name: "Selenium", atomicMass: 78.971, electronegativity: 2.55, electronAffinity: 2.021, density: 4.79, atomicRadius: 103, state: "Solid", meltingPoint: 494, boilingPoint: 958, uses: "Photocells, glass" },
+                { atomicNumber: 35, symbol: "Br", name: "Bromine", atomicMass: 79.904, electronegativity: 2.96, electronAffinity: 3.365, density: 3.1028, atomicRadius: 94, state: "Liquid", meltingPoint: 265.95, boilingPoint: 332.0, uses: "Flame retardants, photography" },
+                { atomicNumber: 36, symbol: "Kr", name: "Krypton", atomicMass: 83.798, electronegativity: 3.00, electronAffinity: -1.0, density: 0.00375, atomicRadius: 88, state: "Gas", meltingPoint: 115.79, boilingPoint: 119.93, uses: "Lamps, lasers" },
+                { atomicNumber: 37, symbol: "Rb", name: "Rubidium", atomicMass: 85.468, electronegativity: 0.82, electronAffinity: 0.468, density: 1.53, atomicRadius: 265, state: "Solid", meltingPoint: 312.46, boilingPoint: 961, uses: "Atomic clocks, photocells" },
+                { atomicNumber: 38, symbol: "Sr", name: "Strontium", atomicMass: 87.62, electronegativity: 0.95, electronAffinity: 0.052, density: 2.64, atomicRadius: 219, state: "Solid", meltingPoint: 1050, boilingPoint: 1655, uses: "Fireworks, strong magnets" },
+                { atomicNumber: 39, symbol: "Y", name: "Yttrium", atomicMass: 88.906, electronegativity: 1.22, electronAffinity: 0.307, density: 4.47, atomicRadius: 212, state: "Solid", meltingPoint: 1799, boilingPoint: 3618, uses: "LEDs, lasers" },
+                { atomicNumber: 40, symbol: "Zr", name: "Zirconium", atomicMass: 91.224, electronegativity: 1.33, electronAffinity: 0.426, density: 6.51, atomicRadius: 206, state: "Solid", meltingPoint: 2128, boilingPoint: 4682, uses: "Nuclear reactors, ceramics" },
+                { atomicNumber: 41, symbol: "Nb", name: "Niobium", atomicMass: 92.906, electronegativity: 1.60, electronAffinity: 0.893, density: 8.57, atomicRadius: 198, state: "Solid", meltingPoint: 2750, boilingPoint: 5017, uses: "Superconducting magnets, alloys" },
+                { atomicNumber: 42, symbol: "Mo", name: "Molybdenum", atomicMass: 95.96, electronegativity: 2.16, electronAffinity: 0.747, density: 10.22, atomicRadius: 190, state: "Solid", meltingPoint: 2896, boilingPoint: 4912, uses: "Steel alloys, catalysts" },
+                { atomicNumber: 43, symbol: "Tc", name: "Technetium", atomicMass: 98.907, electronegativity: 1.90, electronAffinity: 0.55, density: 11.5, atomicRadius: 183, state: "Solid", meltingPoint: 2430, boilingPoint: 4538, uses: "Medical diagnostics" },
+                { atomicNumber: 44, symbol: "Ru", name: "Ruthenium", atomicMass: 101.07, electronegativity: 2.20, electronAffinity: 1.05, density: 12.37, atomicRadius: 178, state: "Solid", meltingPoint: 2607, boilingPoint: 4423, uses: "Electrical contacts, catalysts" },
+                { atomicNumber: 45, symbol: "Rh", name: "Rhodium", atomicMass: 102.91, electronegativity: 2.28, electronAffinity: 1.137, density: 12.41, atomicRadius: 173, state: "Solid", meltingPoint: 2237, boilingPoint: 3968, uses: "Catalytic converters, jewelry" },
+                { atomicNumber: 46, symbol: "Pd", name: "Palladium", atomicMass: 106.42, electronegativity: 2.20, electronAffinity: 0.557, density: 12.02, atomicRadius: 169, state: "Solid", meltingPoint: 1828, boilingPoint: 3236, uses: "Catalytic converters, dentistry" },
+                { atomicNumber: 47, symbol: "Ag", name: "Silver", atomicMass: 107.87, electronegativity: 1.93, electronAffinity: 1.302, density: 10.49, atomicRadius: 165, state: "Solid", meltingPoint: 1234.93, boilingPoint: 2435, uses: "Jewelry, coinage, photography" },
+                { atomicNumber: 48, symbol: "Cd", name: "Cadmium", atomicMass: 112.41, electronegativity: 1.69, electronAffinity: -0.7, density: 8.65, atomicRadius: 161, state: "Solid", meltingPoint: 594.22, boilingPoint: 1040, uses: "Batteries, pigments" },
+                { atomicNumber: 49, symbol: "In", name: "Indium", atomicMass: 114.82, electronegativity: 1.78, electronAffinity: 0.3, density: 7.31, atomicRadius: 156, state: "Solid", meltingPoint: 429.75, boilingPoint: 2345, uses: "LCDs, solders" },
+                { atomicNumber: 50, symbol: "Sn", name: "Tin", atomicMass: 118.71, electronegativity: 1.96, electronAffinity: 1.2, density: 7.26, atomicRadius: 145, state: "Solid", meltingPoint: 505.08, boilingPoint: 2875, uses: "Soldering, canning" },
+                { atomicNumber: 51, symbol: "Sb", name: "Antimony", atomicMass: 121.76, electronegativity: 2.05, electronAffinity: 1.07, density: 6.68, atomicRadius: 133, state: "Solid", meltingPoint: 903.78, boilingPoint: 1860, uses: "Flame retardants, batteries" },
+                { atomicNumber: 52, symbol: "Te", name: "Tellurium", atomicMass: 127.60, electronegativity: 2.10, electronAffinity: 1.971, density: 6.24, atomicRadius: 123, state: "Solid", meltingPoint: 722.66, boilingPoint: 1261, uses: "Solar cells, semiconductors" },
+                { atomicNumber: 53, symbol: "I", name: "Iodine", atomicMass: 126.90, electronegativity: 2.66, electronAffinity: 3.059, density: 4.933, atomicRadius: 115, state: "Solid", meltingPoint: 386.85, boilingPoint: 457.5, uses: "Antiseptics, thyroid health" },
+                { atomicNumber: 54, symbol: "Xe", name: "Xenon", atomicMass: 131.29, electronegativity: 2.60, electronAffinity: -0.8, density: 0.005894, atomicRadius: 108, state: "Gas", meltingPoint: 161.4, boilingPoint: 165.05, uses: "Lamps, anesthesia" },
+                { atomicNumber: 55, symbol: "Cs", name: "Cesium", atomicMass: 132.91, electronegativity: 0.79, electronAffinity: 0.472, density: 1.873, atomicRadius: 298, state: "Solid", meltingPoint: 301.7, boilingPoint: 944, uses: "Atomic clocks, photoelectric cells" },
+                { atomicNumber: 56, symbol: "Ba", name: "Barium", atomicMass: 137.33, electronegativity: 0.89, electronAffinity: 0.145, density: 3.59, atomicRadius: 253, state: "Solid", meltingPoint: 1000, boilingPoint: 2170, uses: "Spark plugs, medical imaging" },
+                { atomicNumber: 57, symbol: "La", name: "Lanthanum", atomicMass: 138.91, electronegativity: 1.10, electronAffinity: 0.557, density: 6.16, atomicRadius: 226, state: "Solid", meltingPoint: 1193, boilingPoint: 3737, uses: "Camera lenses, lighting" },
+                { atomicNumber: 58, symbol: "Ce", name: "Cerium", atomicMass: 140.12, electronegativity: 1.12, electronAffinity: 0.600, density: 6.77, atomicRadius: 235, state: "Solid", meltingPoint: 1071, boilingPoint: 3697, uses: "Polishing powder, catalysts" },
+                { atomicNumber: 59, symbol: "Pr", name: "Praseodymium", atomicMass: 140.91, electronegativity: 1.13, electronAffinity: 0.109, density: 6.77, atomicRadius: 247, state: "Solid", meltingPoint: 1208, boilingPoint: 3793, uses: "Magnets, laser materials" },
+                { atomicNumber: 60, symbol: "Nd", name: "Neodymium", atomicMass: 144.24, electronegativity: 1.14, electronAffinity: 0.097, density: 7.01, atomicRadius: 206, state: "Solid", meltingPoint: 1294, boilingPoint: 3347, uses: "Powerful magnets, lasers" },
+                { atomicNumber: 61, symbol: "Pm", name: "Promethium", atomicMass: 144.91, electronegativity: null, electronAffinity: 0.129, density: 7.31, atomicRadius: 205, state: "Solid", meltingPoint: 1315, boilingPoint: 3273, uses: "Luminous paint, nuclear batteries" },
+                { atomicNumber: 62, symbol: "Sm", name: "Samarium", atomicMass: 150.36, electronegativity: 1.17, electronAffinity: 0.162, density: 7.52, atomicRadius: 238, state: "Solid", meltingPoint: 1345, boilingPoint: 2067, uses: "Magnets, control rods" },
+                { atomicNumber: 63, symbol: "Eu", name: "Europium", atomicMass: 151.96, electronegativity: null, electronAffinity: 0.116, density: 5.24, atomicRadius: 231, state: "Solid", meltingPoint: 1099, boilingPoint: 1802, uses: "TV screens, anti-counterfeiting" },
+                { atomicNumber: 64, symbol: "Gd", name: "Gadolinium", atomicMass: 157.25, electronegativity: 1.20, electronAffinity: 0.212, density: 7.895, atomicRadius: 233, state: "Solid", meltingPoint: 1585, boilingPoint: 3546, uses: "MRI contrast, nuclear reactors" },
+                { atomicNumber: 65, symbol: "Tb", name: "Terbium", atomicMass: 158.93, electronegativity: null, electronAffinity: 0.131, density: 8.23, atomicRadius: 225, state: "Solid", meltingPoint: 1629, boilingPoint: 3503, uses: "Fluorescent lamps, lasers" },
+                { atomicNumber: 66, symbol: "Dy", name: "Dysprosium", atomicMass: 162.50, electronegativity: 1.22, electronAffinity: 0.015, density: 8.55, atomicRadius: 228, state: "Solid", meltingPoint: 1685, boilingPoint: 2840, uses: "Magnets, data storage" },
+                { atomicNumber: 67, symbol: "Ho", name: "Holmium", atomicMass: 164.93, electronegativity: 1.23, electronAffinity: 0.338, density: 8.80, atomicRadius: 226, state: "Solid", meltingPoint: 1734, boilingPoint: 2973, uses: "Lasers, medical applications" },
+                { atomicNumber: 68, symbol: "Er", name: "Erbium", atomicMass: 167.26, electronegativity: 1.24, electronAffinity: 0.312, density: 9.07, atomicRadius: 226, state: "Solid", meltingPoint: 1802, boilingPoint: 3141, uses: "Fiber optics, lasers" },
+                { atomicNumber: 69, symbol: "Tm", name: "Thulium", atomicMass: 168.93, electronegativity: 1.25, electronAffinity: 1.029, density: 9.32, atomicRadius: 222, state: "Solid", meltingPoint: 1818, boilingPoint: 2223, uses: "Lasers, portable X-ray" },
+                { atomicNumber: 70, symbol: "Yb", name: "Ytterbium", atomicMass: 173.05, electronegativity: null, electronAffinity: -0.02, density: 6.90, atomicRadius: 222, state: "Solid", meltingPoint: 1092, boilingPoint: 1469, uses: "Lasers, portable X-ray" },
+                { atomicNumber: 71, symbol: "Lu", name: "Lutetium", atomicMass: 174.97, electronegativity: 1.27, electronAffinity: 0.239, density: 9.84, atomicRadius: 217, state: "Solid", meltingPoint: 1936, boilingPoint: 3675, uses: "PET scanners, catalysts" },
+                { atomicNumber: 72, symbol: "Hf", name: "Hafnium", atomicMass: 178.49, electronegativity: 1.30, electronAffinity: 0.178, density: 13.31, atomicRadius: 208, state: "Solid", meltingPoint: 2506, boilingPoint: 4876, uses: "Control rods, superalloys" },
+                { atomicNumber: 73, symbol: "Ta", name: "Tantalum", atomicMass: 180.95, electronegativity: 1.50, electronAffinity: 0.329, density: 16.65, atomicRadius: 200, state: "Solid", meltingPoint: 3290, boilingPoint: 5731, uses: "Capacitors, medical implants" },
+                { atomicNumber: 74, symbol: "W", name: "Tungsten", atomicMass: 183.84, electronegativity: 2.36, electronAffinity: 0.817, density: 19.25, atomicRadius: 193, state: "Solid", meltingPoint: 3695, boilingPoint: 5828, uses: "Filaments, cutting tools" },
+                { atomicNumber: 75, symbol: "Re", name: "Rhenium", atomicMass: 186.21, electronegativity: 1.90, electronAffinity: 0.060, density: 21.02, atomicRadius: 188, state: "Solid", meltingPoint: 3459, boilingPoint: 5869, uses: "Jet engines, thermocouples" },
+                { atomicNumber: 76, symbol: "Os", name: "Osmium", atomicMass: 190.23, electronegativity: 2.20, electronAffinity: 1.078, density: 22.59, atomicRadius: 185, state: "Solid", meltingPoint: 3306, boilingPoint: 5285, uses: "Pen nibs, electrical contacts" },
+                { atomicNumber: 77, symbol: "Ir", name: "Iridium", atomicMass: 192.22, electronegativity: 2.20, electronAffinity: 1.564, density: 22.56, atomicRadius: 180, state: "Solid", meltingPoint: 2719, boilingPoint: 4701, uses: "Spark plugs, fountain pen nibs" },
+                { atomicNumber: 78, symbol: "Pt", name: "Platinum", atomicMass: 195.08, electronegativity: 2.28, electronAffinity: 2.125, density: 21.45, atomicRadius: 177, state: "Solid", meltingPoint: 2042.1, boilingPoint: 4098, uses: "Jewelry, catalytic converters" },
+                { atomicNumber: 79, symbol: "Au", name: "Gold", atomicMass: 196.97, electronegativity: 2.54, electronAffinity: 2.309, density: 19.30, atomicRadius: 174, state: "Solid", meltingPoint: 1337.33, boilingPoint: 3129, uses: "Jewelry, coinage, electronics" },
+                { atomicNumber: 80, symbol: "Hg", name: "Mercury", atomicMass: 200.59, electronegativity: 2.00, electronAffinity: -0.5, density: 13.534, atomicRadius: 171, state: "Liquid", meltingPoint: 234.32, boilingPoint: 629.88, uses: "Thermometers, barometers (historical)" },
+                { atomicNumber: 81, symbol: "Tl", name: "Thallium", atomicMass: 204.38, electronegativity: 1.62, electronAffinity: 0.320, density: 11.85, atomicRadius: 156, state: "Solid", meltingPoint: 577, boilingPoint: 1746, uses: "Electronics, medical imaging" },
+                { atomicNumber: 82, symbol: "Pb", name: "Lead", atomicMass: 207.2, electronegativity: 1.87, electronAffinity: 0.357, density: 11.34, atomicRadius: 154, state: "Solid", meltingPoint: 600.61, boilingPoint: 2022, uses: "Batteries, radiation shielding" },
+                { atomicNumber: 83, symbol: "Bi", name: "Bismuth", atomicMass: 208.98, electronegativity: 2.02, electronAffinity: 0.942, density: 9.78, atomicRadius: 143, state: "Solid", meltingPoint: 544.7, boilingPoint: 1837, uses: "Cosmetics, alloys" },
+                { atomicNumber: 84, symbol: "Po", name: "Polonium", atomicMass: 208.98, electronegativity: 2.00, electronAffinity: 1.40, density: 9.32, atomicRadius: 135, state: "Solid", meltingPoint: 527, boilingPoint: 1235, uses: "Anti-static brushes, nuclear" },
+                { atomicNumber: 85, symbol: "At", name: "Astatine", atomicMass: 209.99, electronegativity: 2.20, electronAffinity: 2.416, density: "Unknown", atomicRadius: 127, state: "Solid", meltingPoint: 575, boilingPoint: 610, uses: "Research, potential medical uses" },
+                { atomicNumber: 86, symbol: "Rn", name: "Radon", atomicMass: 222.02, electronegativity: 2.20, electronAffinity: null, density: 0.00973, atomicRadius: 120, state: "Gas", meltingPoint: 202, boilingPoint: 211.5, uses: "Radon therapy (historical), research" },
+                { atomicNumber: 87, symbol: "Fr", name: "Francium", atomicMass: 223.02, electronegativity: 0.70, electronAffinity: 0.47, density: "Unknown", atomicRadius: "N/A", state: "Solid", meltingPoint: 300, boilingPoint: 950, uses: "Research" },
+                { atomicNumber: 88, symbol: "Ra", name: "Radium", atomicMass: 226.03, electronegativity: 0.90, electronAffinity: null, density: 5.5, atomicRadius: "N/A", state: "Solid", meltingPoint: 973, boilingPoint: 1413, uses: "Luminous paints (historical), research" },
+                { atomicNumber: 89, symbol: "Ac", name: "Actinium", atomicMass: 227.03, electronegativity: 1.10, electronAffinity: null, density: 10.07, atomicRadius: "N/A", state: "Solid", meltingPoint: 1323, boilingPoint: 3471, uses: "Radioactive source, research" },
+                { atomicNumber: 90, symbol: "Th", name: "Thorium", atomicMass: 232.04, electronegativity: 1.30, electronAffinity: null, density: 11.724, atomicRadius: "N/A", state: "Solid", meltingPoint: 2023, boilingPoint: 5061, uses: "Nuclear fuel, gas mantles" },
+                { atomicNumber: 91, symbol: "Pa", name: "Protactinium", atomicMass: 231.04, electronegativity: 1.50, electronAffinity: null, density: 15.37, atomicRadius: "N/A", state: "Solid", meltingPoint: 1845, boilingPoint: 4300, uses: "Research" },
+                { atomicNumber: 92, symbol: "U", name: "Uranium", atomicMass: 238.03, electronegativity: 1.38, electronAffinity: null, density: 18.95, atomicRadius: "N/A", state: "Solid", meltingPoint: 1405, boilingPoint: 4404, uses: "Nuclear fuel, weapons" },
+                { atomicNumber: 93, symbol: "Np", name: "Neptunium", atomicMass: 237.05, electronegativity: 1.36, electronAffinity: null, density: 20.25, atomicRadius: "N/A", state: "Solid", meltingPoint: 912, boilingPoint: 4175, uses: "Research, nuclear reactors" },
+                { atomicNumber: 94, symbol: "Pu", name: "Plutonium", atomicMass: 244.06, electronegativity: 1.28, electronAffinity: null, density: 19.84, atomicRadius: "N/A", state: "Solid", meltingPoint: 913, boilingPoint: 3501, uses: "Nuclear weapons, power" },
+                { atomicNumber: 95, symbol: "Am", name: "Americium", atomicMass: 243.06, electronegativity: 1.30, electronAffinity: null, density: 13.67, atomicRadius: "N/A", state: "Solid", meltingPoint: 1449, boilingPoint: 2880, uses: "Smoke detectors, research" },
+                { atomicNumber: 96, symbol: "Cm", name: "Curium", atomicMass: 247.07, electronegativity: 1.28, electronAffinity: null, density: 13.51, atomicRadius: "N/A", state: "Solid", meltingPoint: 1627, boilingPoint: 3383, uses: "Power source for spacecraft, research" },
+                { atomicNumber: 97, symbol: "Bk", name: "Berkelium", atomicMass: 247.07, electronegativity: 1.30, electronAffinity: null, density: 14.78, atomicRadius: "N/A", state: "Solid", meltingPoint: 1259, boilingPoint: 2623, uses: "Research" },
+                { atomicNumber: 98, symbol: "Cf", name: "Californium", atomicMass: 251.08, electronegativity: 1.30, electronAffinity: null, density: 15.1, atomicRadius: "N/A", state: "Solid", meltingPoint: 1173, boilingPoint: 1743, uses: "Neutron source, research" },
+                { atomicNumber: 99, symbol: "Es", name: "Einsteinium", atomicMass: 252.08, electronegativity: 1.30, electronAffinity: null, density: 8.84, atomicRadius: "N/A", state: "Solid", meltingPoint: 1133, boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 100, symbol: "Fm", name: "Fermium", atomicMass: 257.10, electronegativity: 1.30, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Solid", meltingPoint: 1800, boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 101, symbol: "Md", name: "Mendelevium", atomicMass: 258.10, electronegativity: 1.30, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Solid", meltingPoint: 1100, boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 102, symbol: "No", name: "Nobelium", atomicMass: 259.10, electronegativity: 1.30, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Solid", meltingPoint: 1100, boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 103, symbol: "Lr", name: "Lawrencium", atomicMass: 262.11, electronegativity: 1.30, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Solid", meltingPoint: 1900, boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 104, symbol: "Rf", name: "Rutherfordium", atomicMass: 267.12, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 105, symbol: "Db", name: "Dubnium", atomicMass: 268.13, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 106, symbol: "Sg", name: "Seaborgium", atomicMass: 269.13, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 107, symbol: "Bh", name: "Bohrium", atomicMass: 270.13, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 108, symbol: "Hs", name: "Hassium", atomicMass: 269.13, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 109, symbol: "Mt", name: "Meitnerium", atomicMass: 278.16, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 110, symbol: "Ds", name: "Darmstadtium", atomicMass: 281.16, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 111, symbol: "Rg", name: "Roentgenium", atomicMass: 282.17, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 112, symbol: "Cn", name: "Copernicium", atomicMass: 285.18, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 113, symbol: "Nh", name: "Nihonium", atomicMass: 286.18, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 114, symbol: "Fl", name: "Flerovium", atomicMass: 289.19, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 115, symbol: "Mc", name: "Moscovium", atomicMass: 290.19, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 116, symbol: "Lv", name: "Livermorium", atomicMass: 293.20, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 117, symbol: "Ts", name: "Tennessine", atomicMass: 294.21, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" },
+                { atomicNumber: 118, symbol: "Og", name: "Oganesson", atomicMass: 294.21, electronegativity: null, electronAffinity: null, density: "Unknown", atomicRadius: "N/A", state: "Synthetic", meltingPoint: "Unknown", boilingPoint: "Unknown", uses: "Research" }
+            ];
+
+            const elementGridContainer = document.querySelector('.element-grid');
+            const searchBar = document.getElementById('search-bar');
+            const atomModal = document.getElementById('atom-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const threeJsContainer = document.getElementById('threejs-container');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const elementNameOverlay = document.getElementById('element-name-overlay');
+            const elementInfoDetails = document.getElementById('element-info-details');
+
+            let scene, camera, renderer, atomGroup; // atomGroup will contain all parts of the atom
+            let protonMesh;
+            let electronMeshes = [];
+            let electronOrbits = [];
+            let mouseX = 0, mouseY = 0;
+            let targetX = 0, targetY = 0;
+            let isDragging = false;
+            let startMouseX = 0;
+            let startMouseY = 0;
+            let startRotationX = 0; // Storing initial rotation for smooth drag
+            let startRotationY = 0; // Storing initial rotation for smooth drag
+
+
+            // Function to determine state based on melting/boiling points at 25°C (298.15 K)
+            function determineState(meltingPoint, boilingPoint) {
+                const roomTempK = 298.15;
+                if (typeof meltingPoint !== 'number' || typeof boilingPoint !== 'number') {
+                    return "Unknown";
+                }
+                if (roomTempK < meltingPoint) {
+                    return "Solid";
+                } else if (roomTempK >= meltingPoint && roomTempK < boilingPoint) {
+                    return "Liquid";
+                } else {
+                    return "Gas";
+                }
+            }
+
+
+            // Function to create an element card
+            const createElementCard = (element) => {
+                const card = document.createElement('div');
+                card.className = 'element-card';
+                card.innerHTML = `
+                    <div class="mb-4">
+                        <div class="element-number">${element.atomicNumber}</div>
+                        <div class="element-symbol">${element.symbol}</div>
+                        <div class="element-name">${element.name}</div>
+                    </div>
+                    <div>
+                        <div class="element-detail"><strong>Atomic Mass:</strong> ${element.atomicMass} u</div>
+                        <div class="element-detail"><strong>Electronegativity:</strong> ${element.electronegativity !== null ? element.electronegativity : 'N/A'}</div>
+                        <div class="element-detail"><strong>State (STP):</strong> ${determineState(element.meltingPoint, element.boilingPoint)}</div>
+                        <div class="element-detail"><strong>Uses:</strong> ${element.uses}</div>
+                    </div>
+                `;
+                // Add click listener to each card to show the modal
+                card.addEventListener('click', () => {
+                    atomModal.style.display = 'flex'; // Show the modal
+                    updateThreeJSModel(element);
+                });
+                return card;
+            };
+
+            // Function to render elements based on filter
+            const renderElements = (elementsToRender) => {
+                elementGridContainer.innerHTML = ''; // Clear existing cards
+                elementsToRender.forEach(element => {
+                    elementGridContainer.appendChild(createElementCard(element));
+                });
+            };
+
+            // Initial render of all elements
+            renderElements(allElements);
+
+            // Search bar functionality
+            searchBar.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                const filteredElements = allElements.filter(element =>
+                    element.name.toLowerCase().includes(searchTerm) ||
+                    element.symbol.toLowerCase().includes(searchTerm) ||
+                    element.atomicNumber.toString().includes(searchTerm)
+                );
+                renderElements(filteredElements);
+            });
+
+            // Close modal functionality
+            closeModalBtn.addEventListener('click', () => {
+                atomModal.style.display = 'none'; // Hide the modal
+                clearAtomModel(); // Clear the model when modal is closed
+                loadingSpinner.style.display = 'flex'; // Show initial message
+                elementNameOverlay.style.display = 'none'; // Hide overlay
+                elementInfoDetails.innerHTML = ''; // Clear details
+                if (renderer && renderer.domElement) {
+                    renderer.domElement.style.display = 'none'; // Hide canvas
+                }
+            });
+
+            // Close modal if user clicks outside the content (on the dark overlay)
+            atomModal.addEventListener('click', (event) => {
+                if (event.target === atomModal) {
+                    atomModal.style.display = 'none';
+                    clearAtomModel();
+                    loadingSpinner.style.display = 'flex';
+                    elementNameOverlay.style.display = 'none';
+                    elementInfoDetails.innerHTML = '';
+                    if (renderer && renderer.domElement) {
+                        renderer.domElement.style.display = 'none';
+                    }
+                }
+            });
+
+            // --- Three.js Setup and Update Logic ---
+            function initThreeJS() {
+                // Scene
+                scene = new THREE.Scene();
+
+                // Camera
+                camera = new THREE.PerspectiveCamera(75, threeJsContainer.clientWidth / threeJsContainer.clientHeight, 0.1, 1000);
+                camera.position.z = 5;
+
+                // Renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: true for transparent background
+                renderer.setSize(threeJsContainer.clientWidth, threeJsContainer.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio); // Handle high DPI screens
+                threeJsContainer.appendChild(renderer.domElement);
+
+                // Atom Group (to rotate all atom components together)
+                atomGroup = new THREE.Group();
+                scene.add(atomGroup);
+
+                // Lights
+                const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+                scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(1, 1, 1).normalize();
+                scene.add(directionalLight);
+
+                // Event Listeners for interaction (attached to threeJsContainer within the modal)
+                threeJsContainer.addEventListener('mousemove', onDocumentMouseMove);
+                threeJsContainer.addEventListener('mousedown', onDocumentMouseDown);
+                threeJsContainer.addEventListener('mouseup', onDocumentMouseUp);
+
+                // Touch events for mobile
+                threeJsContainer.addEventListener('touchmove', onDocumentTouchMove, { passive: false });
+                threeJsContainer.addEventListener('touchstart', onDocumentTouchStart, { passive: false });
+                threeJsContainer.addEventListener('touchend', onDocumentTouchEnd, { passive: false });
+
+                // Handle window resize (this needs to be responsive to modal size, not just window)
+                window.addEventListener('resize', onWindowResize); // Re-evaluate size on window resize
+                // Also trigger resize when modal becomes visible for the first time
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach(mutation => {
+                        if (mutation.attributeName === 'style' && atomModal.style.display === 'flex') {
+                            onWindowResize(); // Adjust canvas size if modal becomes visible
+                        }
+                    });
+                });
+                observer.observe(atomModal, { attributes: true });
+
+
+                // Start animation loop
+                animateThreeJS();
+            }
+
+            function clearAtomModel() {
+                // Remove existing proton and electrons
+                if (protonMesh) {
+                    atomGroup.remove(protonMesh);
+                    protonMesh.geometry.dispose();
+                    protonMesh.material.dispose();
+                    protonMesh = null; // Clear reference
+                }
+                electronMeshes.forEach(mesh => {
+                    atomGroup.remove(mesh);
+                    mesh.geometry.dispose();
+                    mesh.material.dispose();
+                });
+                electronMeshes = [];
+
+                electronOrbits.forEach(orbit => {
+                    atomGroup.remove(orbit);
+                    orbit.geometry.dispose();
+                    orbit.material.dispose();
+                });
+                electronOrbits = [];
+            }
+
+            function updateThreeJSModel(element) {
+                loadingSpinner.style.display = 'none';
+                renderer.domElement.style.display = 'block';
+                elementNameOverlay.style.display = 'block';
+
+                // Update overlay text
+                elementNameOverlay.textContent = `${element.name} (${element.symbol}, No. ${element.atomicNumber})`;
+
+                // Update info details
+                elementInfoDetails.innerHTML = `
+                    <div><span>Atomic Mass:</span> ${element.atomicMass} u</div>
+                    <div><span>Electronegativity:</span> ${element.electronegativity !== null ? element.electronegativity : 'N/A'}</div>
+                    <div><span>Electron Affinity:</span> ${element.electronAffinity !== null ? element.electronAffinity + ' eV' : 'N/A'}</div>
+                    <div><span>Density:</span> ${element.density !== null ? element.density + ' g/cm³' : 'N/A'}</div>
+                    <div><span>Atomic Radius:</span> ${element.atomicRadius !== null ? element.atomicRadius + ' pm' : 'N/A'}</div>
+                    <div><span>State (STP):</span> ${determineState(element.meltingPoint, element.boilingPoint)}</div>
+                    <div><span>Melting Point:</span> ${element.meltingPoint !== null ? element.meltingPoint + ' K' : 'N/A'}</div>
+                    <div><span>Boiling Point:</span> ${element.boilingPoint !== null ? element.boilingPoint + ' K' : 'N/A'}</div>
+                    <div style="grid-column: 1 / -1;"><span>Common Uses:</span> ${element.uses}</div>
+                `;
+
+
+                clearAtomModel(); // Clear previous model components
+
+                // Reset rotation of atom group for new element
+                atomGroup.rotation.set(0, 0, 0);
+                targetX = 0;
+                targetY = 0;
+
+                // --- Nucleus (Proton conceptually for any atom) ---
+                // Scale nucleus based on atomic number, clamped for visual sanity
+                const nucleusSize = Math.max(0.3, Math.min(1.0, Math.cbrt(element.atomicNumber) * 0.2));
+                const protonGeometry = new THREE.SphereGeometry(nucleusSize, 32, 32);
+                const protonMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, flatShading: true }); // Red, flat shaded
+                protonMesh = new THREE.Mesh(protonGeometry, protonMaterial);
+                atomGroup.add(protonMesh);
+
+                // --- Electrons and Orbits ---
+                const maxElectronsToShow = 50; // Cap the number of visual electrons for performance/visual clarity
+                const numElectrons = Math.min(element.atomicNumber, maxElectronsToShow);
+
+                // Define electron shell capacities (simplified Bohr model for visual distribution)
+                // K: 2, L: 8, M: 18, N: 32 (etc.)
+                const shellCapacities = [2, 8, 18, 32];
+                let currentElectronCount = 0;
+                let currentOrbitRadius = 1.5;
+                const radiusIncrement = 1.0; // Increment radius for next shell
+
+                const electronGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+                const electronMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, flatShading: true }); // Blue, flat shaded
+
+                let shellIndex = 0;
+                while (currentElectronCount < numElectrons) {
+                    const radius = currentOrbitRadius + shellIndex * radiusIncrement;
+                    const electronsInThisShell = Math.min(numElectrons - currentElectronCount, shellCapacities[shellIndex] || 20); // Fallback if no capacity defined
+
+                    // Add an orbit visual
+                    const orbitSegments = 64;
+                    const orbitGeom = new THREE.RingGeometry(radius - 0.005, radius + 0.005, orbitSegments);
+                    const orbitMat = new THREE.MeshBasicMaterial({ color: 0x888888, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
+                    const orbitMesh = new THREE.Mesh(orbitGeom, orbitMat);
+                    orbitMesh.rotation.x = Math.PI / 2; // Flat plane
+                    orbitMesh.rotation.y = Math.random() * Math.PI; // Randomize orbit orientation slightly
+                    atomGroup.add(orbitMesh);
+                    electronOrbits.push(orbitMesh);
+
+                    for (let j = 0; j < electronsInThisShell; j++) {
+                        const electron = new THREE.Mesh(electronGeometry, electronMaterial);
+                        electron.orbitRadius = radius; // Store radius for animation
+                        electron.orbitSpeed = 0.01 + Math.random() * 0.01; // Vary speed slightly
+                        electron.startAngle = Math.random() * Math.PI * 2; // Random starting position
+                        electron.orbitIndex = shellIndex; // To link to orbit mesh rotation
+                        // Initial position on the XZ plane of the orbit (before group rotation)
+                        electron.position.set(
+                            Math.cos(electron.startAngle) * electron.orbitRadius,
+                            0, // Initially flat
+                            Math.sin(electron.startAngle) * electron.orbitRadius
+                        );
+                        atomGroup.add(electron);
+                        electronMeshes.push(electron);
+                    }
+                    currentElectronCount += electronsInThisShell;
+                    shellIndex++;
+                    if (shellIndex >= shellCapacities.length && currentElectronCount < numElectrons) {
+                        // If we run out of defined shell capacities but still have electrons
+                        // just add them to new, increasing orbits
+                        currentOrbitRadius += radiusIncrement; // Increase radius for the next undefined shell
+                    }
+                }
+                onWindowResize(); // Ensure canvas size is correct after content update
+            }
+
+
+            function onDocumentMouseMove(event) {
+                // Get coordinates relative to the threeJsContainer
+                const rect = threeJsContainer.getBoundingClientRect();
+                const containerMouseX = event.clientX - rect.left - rect.width / 2;
+                const containerMouseY = event.clientY - rect.top - rect.height / 2;
+
+                if (isDragging) {
+                    targetX = startRotationY + (containerMouseX - startMouseX) * 0.005;
+                    targetY = startRotationX + (containerMouseY - startMouseY) * 0.005;
+                }
+            }
+
+            function onDocumentMouseDown(event) {
+                if (event.button === 0) { // Left mouse button
+                    isDragging = true;
+                    const rect = threeJsContainer.getBoundingClientRect();
+                    startMouseX = event.clientX - rect.left - rect.width / 2;
+                    startMouseY = event.clientY - rect.top - rect.height / 2;
+                    startRotationY = atomGroup.rotation.y; // Capture current rotation
+                    startRotationX = atomGroup.rotation.x; // Capture current rotation
+                    threeJsContainer.style.cursor = 'grabbing';
+                }
+            }
+
+            function onDocumentMouseUp(event) {
+                if (event.button === 0) {
+                    isDragging = false;
+                    threeJsContainer.style.cursor = 'grab';
+                }
+            }
+
+            function onDocumentTouchMove(event) {
+                if (event.touches.length === 1) {
+                    event.preventDefault(); // Prevent scrolling
+                    const touch = event.touches[0];
+                    const rect = threeJsContainer.getBoundingClientRect();
+                    mouseX = touch.clientX - rect.left - rect.width / 2;
+                    mouseY = touch.clientY - rect.top - rect.height / 2;
+                     if (isDragging) {
+                        targetX = startRotationY + (mouseX - startMouseX) * 0.005;
+                        targetY = startRotationX + (mouseY - startMouseY) * 0.005;
+                    }
+                }
+            }
+
+            function onDocumentTouchStart(event) {
+                if (event.touches.length === 1) {
+                    event.preventDefault(); // Prevent scrolling
+                    const touch = event.touches[0];
+                    const rect = threeJsContainer.getBoundingClientRect();
+                    startMouseX = touch.clientX - rect.left - rect.width / 2;
+                    startMouseY = touch.clientY - rect.top - rect.height / 2;
+                    startRotationY = atomGroup.rotation.y; // Capture current rotation
+                    startRotationX = atomGroup.rotation.x; // Capture current rotation
+                    isDragging = true; // Set dragging to true on touch start
+                    threeJsContainer.style.cursor = 'grabbing';
+                }
+            }
+
+            function onDocumentTouchEnd(event) {
+                isDragging = false; // Reset dragging on touch end
+                threeJsContainer.style.cursor = 'grab';
+            }
+
+
+            function onWindowResize() {
+                // Ensure renderer and camera are updated based on the actual container size
+                const width = threeJsContainer.clientWidth;
+                const height = threeJsContainer.clientHeight;
+                if (camera && renderer) {
+                    camera.aspect = width / height;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(width, height);
+                }
+            }
+
+            function animateThreeJS() {
+                requestAnimationFrame(animateThreeJS);
+
+                // Smooth rotation based on mouse/touch input
+                // If not dragging, maintain slight auto-rotation
+                const rotationSpeed = 0.05; // Speed of rotation lerp
+                if (!isDragging) {
+                    targetX += 0.0005; // Continuous auto-rotation
+                }
+                atomGroup.rotation.y += (targetX - atomGroup.rotation.y) * rotationSpeed;
+                atomGroup.rotation.x += (targetY - atomGroup.rotation.x) * rotationSpeed;
+
+
+                // Electron orbit animation
+                electronMeshes.forEach(electron => {
+                    const time = Date.now() * electron.orbitSpeed;
+                    // Electrons orbit on an XZ plane relative to the atomGroup, which itself rotates
+                    electron.position.x = Math.cos(time + electron.startAngle) * electron.orbitRadius;
+                    electron.position.z = Math.sin(time + electron.startAngle) * electron.orbitRadius;
+                    // Keep y at 0 if we want flat orbits, or add a slight wobble if desired
+                    electron.position.y = 0;
+
+                    // Rotate the orbit plane visually (the orbit mesh itself)
+                    const orbitMesh = electronOrbits[electron.orbitIndex];
+                    if (orbitMesh) {
+                        orbitMesh.rotation.z += 0.001; // Slowly rotate the orbit plane around its Z axis
+                    }
+                });
+
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }
+
+            // Initialize Three.js once
+            initThreeJS();
+        });
+    </script>
+</body>
+</html>
