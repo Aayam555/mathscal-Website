@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Plane Mirror Image Visualizer (3D)</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="shortcut icon" href="../images/favicon.png" type="image/png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e6edf4; /* Light blue-grey background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .main-app-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+      /* min-height: 100vh; Ensure it takes full viewport height */
+            box-sizing: border-box;
+            margin-top: 50px;
+        }
+
+        .card-design {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column; /* Stack content vertically */
+            gap: 1rem; /* Spacing between elements within the card */
+            max-width: 550px; /* Max width for the combined card */
+            width: 100%;
+            /* height: 90vh; Make the card take substantial height */
+            position: relative; /* For Home button positioning */
+        }
+
+        #canvas-container {
+            flex-grow: 1; /* Allow canvas to take available vertical space */
+            width: 100%; /* Full width of its parent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000; /* Black background for the canvas area */
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1rem; /* Space between canvas and input */
+        }
+
+        canvas {
+            display: block;
+            border-radius: 0.75rem;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Custom styles for the gradient button */
+        .gradient-button {
+            background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            border: none;
+        }
+        .gradient-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background-image: linear-gradient(to right, #2575fc 0%, #6a11cb 100%);
+            color: white;
+        }
+        .gradient-button:active {
+            transform: scale(0.98);
+            box-shadow: none;
+        }
+
+        /* Styling for the Home button to match screenshot */
+        .btn-light-custom {
+            background-color: #e0e0e0 !important;
+            color: #333 !important;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: normal;
+            border: none;
+            padding: 0.5rem 1rem;
+            transition: background-color 0.2s ease-in-out;
+            z-index: 10; /* Ensure button is above other content if overlapping */
+        }
+        .btn-light-custom:hover {
+            background-color: #d0d0d0 !important;
+        }
+
+        /* Styling for result lines */
+        .result-line {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 1.125rem;
+            color: #212529;
+            font-weight: normal;
+        }
+        .result-value {
+            color: #007bff;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" id="homeButton" class="btn btn-outline-dark position-absolute top-0 start-0 m-4">
+                Home
+    </a>
+    <div class="main-app-container">
+        <div class="card-design">
+            
+            <h1 id="app-title" class="h3 fw-bold text-dark text-center mt-5 mb-4">Mirror Image Visualizer</h1>
+
+            <div id="canvas-container">
+                <!-- Three.js canvas will be appended here -->
+            </div>
+            <div id="resultDisplay" class="d-flex flex-column gap-2 mt-4">
+                <div class="result-line">
+                    <span style="font-size: 25px;">Number of Images: <span id="numImagesValue" class="result-value">--</span></span>
+                    
+                </div>
+            </div> 
+
+            <div id="input-section" class="w-100 d-flex flex-column align-items-center justify-content-center gap-3">
+                <label for="angleInput" class="fs-5 text-secondary text-start w-100 mb-0 ps-1">Angle between mirrors (degrees):</label>
+                <input type="number" id="angleInput" value="60" min="1" max="179"
+                       class="form-control text-center fs-5">
+                <button id="visualizeButton"
+                        class="btn gradient-button w-100">
+                    Visualize
+                </button>
+            </div>
+
+            
+        </div>
+    </div>
+    <!-- Bootstrap JS CDN (optional, but good practice for interactive components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // --- Global Three.js Variables ---
+        let scene, camera, renderer;
+        let currentAngle = 60;
+        let currentNumImages = 0;
+        let objectMesh; // The actual object
+        let imagesGroup; // Group to hold all image meshes for easy clearing
+        let mirrorGroup; // Group to hold mirror meshes
+        let originMarker;
+        let dashedLine;
+
+        // --- DOM Elements ---
+        const angleInput = document.getElementById('angleInput');
+        const visualizeButton = document.getElementById('visualizeButton');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const numImagesValue = document.getElementById('numImagesValue'); // New element for the value
+        const canvasContainer = document.getElementById('canvas-container');
+        const appTitle = document.getElementById('app-title');
+        const inputSection = document.getElementById('input-section');
+        const noteParagraph = document.getElementById('note-paragraph');
+        const mainCard = document.querySelector('.card-design'); // Reference to the main card
+
+        // --- Constants for Scene Sizing ---
+        let canvasWidth, canvasHeight;
+        let mirrorLength, objectDistance, objectSize;
+        const MIRROR_THICKNESS = 2; // Thickness for the mirror boxes
+        const ZOOM_SPEED = 0.5; // Controls how fast zooming happens
+        const MIN_ZOOM = 50; // Closest zoom level
+        const MAX_ZOOM = 500; // Furthest zoom level
+
+        // --- Helper Function for Calculating Number of Images ---
+        function calculateImages(theta) {
+            if (theta <= 0 || theta >= 180) {
+                return "Invalid Angle";
+            }
+            const ratio = 360 / theta;
+            if (Number.isInteger(ratio)) {
+                return ratio - 1;
+            } else {
+                return Math.floor(ratio);
+            }
+        }
+
+        // --- Three.js Initialization and Setup ---
+        function initThreeJS() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000); // Black background as per screenshot
+
+            // Camera - Initialized with default aspect, will be updated by onWindowResize
+            camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            // Camera position will be set dynamically in onWindowResize/updateDynamicSizes
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            canvasContainer.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(0, 1, 1).normalize();
+            scene.add(directionalLight);
+
+            // Create groups for easy management
+            imagesGroup = new THREE.Group();
+            scene.add(imagesGroup);
+            mirrorGroup = new THREE.Group();
+            scene.add(mirrorGroup);
+
+            // Event Listeners for Camera Controls (Manual Orbit)
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                // Rotate around Y-axis for horizontal drag
+                scene.rotation.y += deltaX * 0.005;
+                // Rotate around X-axis for vertical drag (clamped to prevent flipping)
+                scene.rotation.x += deltaY * 0.005;
+                scene.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, scene.rotation.x));
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+                renderThreeJS(); // Re-render after rotation
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            // Touch events for mobile (simplified for rotation only)
+            renderer.domElement.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            });
+
+            renderer.domElement.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - previousMousePosition.x;
+                const deltaY = e.touches[0].clientY - previousMousePosition.y;
+
+                scene.rotation.y += deltaX * 0.005;
+                scene.rotation.x += deltaY * 0.005;
+                scene.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, scene.rotation.x));
+
+                previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                renderThreeJS();
+            });
+
+            renderer.domElement.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            // Mouse wheel event for zoom
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault(); // Prevent page scrolling
+                const zoomAmount = e.deltaY * ZOOM_SPEED; // Adjust zoom speed
+                camera.position.z += zoomAmount;
+
+                // Clamp zoom level
+                camera.position.z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, camera.position.z));
+                camera.updateProjectionMatrix();
+                renderThreeJS();
+            });
+
+
+            // Initial resize and render
+            onWindowResize();
+            window.addEventListener('resize', onWindowResize);
+            // Kick off the animation loop
+            animateThreeJS();
+        }
+
+        // --- Resize Handler for Three.js ---
+        function onWindowResize() {
+            // Calculate canvas dimensions first
+            calculateCanvasDimensions();
+            
+            // Set renderer size and update camera aspect
+            renderer.setSize(canvasWidth, canvasHeight);
+            camera.aspect = canvasWidth / canvasHeight;
+            
+            // Update dynamic sizes of objects (mirror, object, images) based on new canvas size
+            updateDynamicSizes(); 
+
+            // Set camera Z position dynamically AFTER mirrorLength and objectDistance are updated
+            // Only set initial camera position if it hasn't been manually zoomed/moved
+            if (camera.position.z === 200 || camera.position.z < MIN_ZOOM || camera.position.z > MAX_ZOOM) { // Check against default or if out of bounds
+                camera.position.z = Math.max(200, Math.max(mirrorLength, objectDistance) * 2.5);
+                camera.position.z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, camera.position.z)); // Clamp to initial zoom limits
+            }
+            camera.updateProjectionMatrix();
+
+            // Finally, draw the visualization
+            drawVisualizationThreeJS(); 
+        }
+
+        /**
+         * Calculates the optimal square dimensions for the canvas
+         * to fit within the combined card's available space.
+         */
+        function calculateCanvasDimensions() {
+            // Calculate space taken by other elements within the card
+            const titleHeight = appTitle ? appTitle.offsetHeight + parseInt(window.getComputedStyle(appTitle).marginBottom) : 0;
+            const inputSectionHeight = inputSection ? inputSection.offsetHeight + parseInt(window.getComputedStyle(inputSection).marginTop) + parseInt(window.getComputedStyle(inputSection).marginBottom) : 0;
+            const resultDisplayHeight = resultDisplay ? resultDisplay.offsetHeight + parseInt(window.getComputedStyle(resultDisplay).marginTop) + parseInt(window.getComputedStyle(resultDisplay).marginBottom) : 0;
+            const noteHeight = noteParagraph ? noteParagraph.offsetHeight + parseInt(window.getComputedStyle(noteParagraph).marginTop) + parseInt(window.getComputedStyle(noteParagraph).marginBottom) : 0;
+
+            const cardStyle = window.getComputedStyle(mainCard);
+            const cardPaddingY = parseInt(cardStyle.paddingTop) + parseInt(cardStyle.paddingBottom);
+            const cardGap = parseInt(cardStyle.gap) * 3; // 3 gaps (canvas-input, input-result, result-note)
+
+            const occupiedHeight = titleHeight + inputSectionHeight + resultDisplayHeight + noteHeight + cardPaddingY + cardGap;
+
+            // Available vertical space for canvas within the card
+            const availableHeightForCanvas = Math.max(100, mainCard.clientHeight - occupiedHeight);
+            const availableWidthForCanvas = Math.max(100, canvasContainer.clientWidth); // Use canvasContainer's actual width
+
+            // Canvas should be square, constrained by the smaller dimension
+            canvasWidth = Math.min(availableWidthForCanvas, availableHeightForCanvas);
+            canvasHeight = canvasWidth;
+        }
+
+        // Function to update dynamic sizes of visual elements based on canvas dimensions
+        function updateDynamicSizes() {
+            const minDim = Math.min(canvasWidth, canvasHeight);
+            mirrorLength = minDim * 0.55;
+            objectDistance = minDim * 0.25;
+            objectSize = minDim * 0.06;
+        }
+
+        // --- Animation Loop ---
+        function animateThreeJS() {
+            requestAnimationFrame(animateThreeJS);
+            renderThreeJS();
+        }
+
+        // --- Render the Scene ---
+        function renderThreeJS() {
+            if (renderer) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // --- Function to draw/update visualization in Three.js ---
+        function drawVisualizationThreeJS() {
+            // Clear previous objects from their groups
+            while (imagesGroup.children.length > 0) {
+                imagesGroup.remove(imagesGroup.children[0]);
+            }
+            while (mirrorGroup.children.length > 0) {
+                mirrorGroup.remove(mirrorGroup.children[0]);
+            }
+
+            // Remove origin marker and dashed line directly from scene
+            if (originMarker) scene.remove(originMarker);
+            if (dashedLine) scene.remove(dashedLine);
+            if (objectMesh) scene.remove(objectMesh);
+
+            // --- Draw mirrors as thin boxes ---
+            const mirrorMaterial = new THREE.MeshLambertMaterial({ color: 0x646464, side: THREE.DoubleSide });
+            const mirrorBoxGeometry = new THREE.BoxGeometry(mirrorLength, MIRROR_THICKNESS, MIRROR_THICKNESS);
+
+            // Mirror 1
+            const mirror1 = new THREE.Mesh(mirrorBoxGeometry, mirrorMaterial);
+            mirror1.position.x = -mirrorLength / 2;
+            const mirror1Group = new THREE.Group();
+            mirror1Group.add(mirror1);
+            mirror1Group.rotation.z = -THREE.MathUtils.degToRad(currentAngle / 2);
+            mirrorGroup.add(mirror1Group);
+
+            // Mirror 2
+            const mirror2 = new THREE.Mesh(mirrorBoxGeometry, mirrorMaterial);
+            mirror2.position.x = -mirrorLength / 2;
+            const mirror2Group = new THREE.Group();
+            mirror2Group.add(mirror2);
+            mirror2Group.rotation.z = THREE.MathUtils.degToRad(currentAngle / 2);
+            mirrorGroup.add(mirror2Group);
+
+            // --- Draw the origin marker ---
+            const originGeometry = new THREE.SphereGeometry(objectSize * 0.15, 16, 16);
+            const originMaterial = new THREE.MeshBasicMaterial({ color: 0x00C800 });
+            originMarker = new THREE.Mesh(originGeometry, originMaterial);
+            scene.add(originMarker);
+
+            // --- Draw the object ---
+            const objectGeometry = new THREE.SphereGeometry(objectSize / 2, 32, 32);
+            const objectMaterial = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+            objectMesh = new THREE.Mesh(objectGeometry, objectMaterial);
+            objectMesh.position.set(-objectDistance, 0, 0);
+            scene.add(objectMesh);
+
+            // --- Draw dashed line from origin to object ---
+            const dashedLineMaterial = new THREE.LineDashedMaterial({
+                color: 0x009600,
+                dashSize: 5,
+                gapSize: 5,
+                linewidth: 1
+            });
+            const dashedLineGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(-objectDistance, 0, 0)
+            ]);
+            dashedLine = new THREE.Line(dashedLineGeometry, dashedLineMaterial);
+            dashedLine.computeLineDistances();
+            scene.add(dashedLine);
+
+            // --- Draw images ---
+            if (typeof currentNumImages === 'number' && currentNumImages >= 0) {
+                const imageMaterial = new THREE.MeshLambertMaterial({ color: 0x0000FF });
+                const totalReflections = currentNumImages + 1;
+                const angularStep = totalReflections > 0 ? 360 / totalReflections : 0;
+
+                for (let i = 0; i < totalReflections; i++) {
+                    const imageMesh = new THREE.Mesh(objectGeometry, imageMaterial);
+                    const angleRad = THREE.MathUtils.degToRad(180 + (i * angularStep));
+                    imageMesh.position.x = Math.cos(angleRad) * objectDistance;
+                    imageMesh.position.y = Math.sin(angleRad) * objectDistance;
+                    imageMesh.position.z = 0;
+
+                    imagesGroup.add(imageMesh);
+                }
+            }
+
+            renderThreeJS();
+        }
+
+        // --- Event Listeners and Update Logic ---
+        window.onload = () => {
+            initThreeJS();
+            updateVisualization();
+        };
+
+        visualizeButton.addEventListener('click', updateVisualization);
+        angleInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                updateVisualization();
+            }
+        });
+
+        function updateVisualization() {
+            let inputVal = parseFloat(angleInput.value);
+            const result = calculateImages(inputVal);
+
+            if (typeof result === 'string') {
+                numImagesValue.textContent = result;
+                currentNumImages = -1;
+            } else {
+                currentAngle = inputVal;
+                currentNumImages = result;
+                numImagesValue.textContent = currentNumImages;
+            }
+
+            onWindowResize(); // Recalculate and redraw
+        }
+    </script>
+</body>
+</html>
