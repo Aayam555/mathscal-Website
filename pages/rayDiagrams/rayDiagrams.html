@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ray Diagrams</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="../../images/favicon.png" type="image/png" />
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e7ee; /* Lighter, soft blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px; /* Increased padding */
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.75rem; /* Even more rounded corners */
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+            padding: 3rem; /* Further increased padding */
+            max-width: 1100px; /* Slightly wider container */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem; /* Increased gap between sections */
+        }
+        canvas {
+            background-color: #f0f4f8; /* Very light blue-gray for canvas */
+            border-radius: 1.25rem; /* Rounded canvas corners */
+            border: 1px solid #d1d9e6; /* Subtle border */
+            width: 100%;
+            height: 450px; /* Slightly increased height for more space */
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem; /* Increased gap for controls */
+            justify-content: center; /* Center controls for better mobile layout */
+            align-items: flex-start; /* Align items to start for better vertical distribution */
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* Increased gap within control groups */
+            align-items: center;
+            background-color: #fcfdfe; /* Almost white background for control groups */
+            padding: 1.25rem; /* Increased padding */
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Softer, more pronounced shadow */
+            border: 1px solid #e0e7ee; /* Subtle border */
+        }
+        .slider-container {
+            width: 180px; /* Wider slider container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 10px; /* Thicker slider track */
+            background: #c5d4e6; /* Custom slider track color */
+            border-radius: 6px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px; /* Larger thumb */
+            height: 24px; /* Larger thumb */
+            background: #3b82f6; /* Brighter blue for thumb */
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25); /* More prominent thumb shadow */
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #2563eb; /* Darker blue on hover */
+            transform: scale(1.1);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            background: #2563eb;
+            transform: scale(1.1);
+        }
+        /* Custom active styling for buttons, overriding Bootstrap for visual consistency */
+        button.active {
+            background-color: #2563eb !important; /* Deeper blue for active state */
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25) !important; /* Deeper inset shadow */
+            transform: translateY(0) !important;
+            border-color: #2563eb !important; /* Ensure border matches active color */
+        }
+        .info-box {
+            background-color: #eef4f9; /* Very light background for info */
+            border-radius: 1rem;
+            padding: 1.25rem 2rem; /* Increased padding */
+            text-align: center;
+            font-size: 1.1rem; /* Larger font size */
+            color: #334155;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.08); /* Subtle inset shadow */
+            line-height: 1.5;
+        }
+        .info-box p {
+            margin-bottom: 0.5rem;
+        }
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .controls {
+                justify-content: space-between;
+                flex-wrap: nowrap; /* Prevent wrapping on larger screens for a single row */
+            }
+            .control-group {
+                flex: 1; /* Distribute space evenly */
+            }
+        }
+    </style>
+</head>
+<body class="font-inter">
+    <div class="container">
+        <!-- Home Button -->
+        <div class="flex justify-start mb-4">
+            <a href="../../index.html" id="homeBtn" class="btn btn-outline-dark">Home</a>
+        </div>
+
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-6">Ray Diagrams</h1>
+
+        <canvas id="opticsCanvas"></canvas>
+
+        <div class="controls">
+            <div class="control-group">
+                <label class="text-gray-700 font-semibold mb-2">Optic Type:</label>
+                <div class="flex gap-3">
+                    <button id="mirrorBtn" class="btn btn-primary active">Mirror</button>
+                    <button id="lensBtn" class="btn btn-primary">Lens</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="text-gray-700 font-semibold mb-2">Shape:</label>
+                <div class="flex gap-3">
+                    <button id="concaveBtn" class="btn btn-primary active">Concave</button>
+                    <button id="convexBtn" class="btn btn-primary">Convex</button>
+                    <button id="planeBtn" class="btn btn-primary">Plane</button>
+                </div>
+            </div>
+
+            <div class="control-group slider-container">
+                <label for="focalLengthSlider" class="text-gray-700 font-semibold">Focal Length (cm): <span id="focalLengthValue" class="text-blue-700 font-bold"></span></label>
+                <input type="range" id="focalLengthSlider" min="20" max="150" value="80">
+            </div>
+
+            <div class="control-group slider-container">
+                <label for="objectPositionSlider" class="text-gray-700 font-semibold">Object Position (cm): <span id="objectPositionValue" class="text-green-700 font-bold"></span></label>
+                <input type="range" id="objectPositionSlider" min="50" max="390" value="200">
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p class="text-xl font-bold text-gray-800">Image Properties:</p>
+            <p id="imageProperties" class="text-gray-700">Adjust sliders to see image formation.</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('opticsCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // UI Elements
+        const homeBtn = document.getElementById('homeBtn'); // New Home button reference
+        const mirrorBtn = document.getElementById('mirrorBtn');
+        const lensBtn = document.getElementById('lensBtn');
+        const concaveBtn = document.getElementById('concaveBtn');
+        const convexBtn = document.getElementById('convexBtn');
+        const planeBtn = document.getElementById('planeBtn');
+        const focalLengthSlider = document.getElementById('focalLengthSlider');
+        const focalLengthValueSpan = document.getElementById('focalLengthValue');
+        const objectPositionSlider = document.getElementById('objectPositionSlider');
+        const objectPositionValueSpan = document.getElementById('objectPositionValue');
+        const imagePropertiesDisplay = document.getElementById('imageProperties');
+
+        // State Variables
+        let opticType = 'mirror'; // 'mirror' or 'lens'
+        let opticShape = 'concave'; // 'concave', 'convex', 'plane'
+        let focalLength = 80; // in canvas units (cm)
+
+        // Canvas dimensions and scaling
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 450;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+
+        // Origin (center of the canvas for principal axis)
+        const ORIGIN_X = CANVAS_WIDTH / 2;
+        const ORIGIN_Y = CANVAS_HEIGHT / 2;
+
+        // Object properties
+        let objectX = ORIGIN_X - 200; // Initial object position relative to origin
+        let objectHeight = 50; // Object height
+
+        // --- Utility Functions ---
+
+        /**
+         * Converts canvas X coordinate to physics 'u' (object distance).
+         * Assumes origin is at the center of the optic.
+         * Distances to the left of origin are negative, to the right are positive.
+         * Object is always to the left, so its 'u' is negative.
+         * @param {number} canvasX The X coordinate on the canvas.
+         * @returns {number} The object distance 'u' in canvas units.
+         */
+        function canvasXToPhysicsU(canvasX) {
+            return canvasX - ORIGIN_X; // Distance from optic center
+        }
+
+        /**
+         * Converts physics 'v' (image distance) to canvas X coordinate.
+         * @param {number} physicsV The image distance 'v' in canvas units.
+         * @returns {number} The X coordinate on the canvas.
+         */
+        function physicsVToCanvasX(physicsV) {
+            return ORIGIN_X + physicsV;
+        }
+
+        /**
+         * Draws an arrow head.
+         * @param {CanvasRenderingContext2D} ctx The canvas rendering context.
+         * @param {number} fromX Start X.
+         * @param {number} fromY Start Y.
+         * @param {number} toX End X.
+         * @param {number} toY End Y.
+         * @param {number} arrowHeadSize Size of the arrow head.
+         */
+        function drawArrowHead(ctx, fromX, fromY, toX, toY, arrowHeadSize) {
+            const angle = Math.atan2(toY - fromY, toX - fromX);
+            ctx.lineTo(toX - arrowHeadSize * Math.cos(angle - Math.PI / 6), toY - arrowHeadSize * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(toX - arrowHeadSize * Math.cos(angle + Math.PI / 6), toY - arrowHeadSize * Math.sin(angle + Math.PI / 6));
+        }
+
+        /**
+         * Draws a dashed line.
+         * @param {CanvasRenderingContext2D} ctx The canvas rendering context.
+         * @param {number} x1 Start X.
+         * @param {number} y1 Start Y.
+         * @param {number} x2 End X.
+         * @param {number} y2 End Y.
+         * @param {number[]} pattern Dash pattern.
+         */
+        function drawDashedLine(ctx, x1, y1, x2, y2, pattern) {
+            ctx.setLineDash(pattern);
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset to solid line
+        }
+
+        // --- Drawing Functions ---
+
+        /**
+         * Draws the principal axis.
+         */
+        function drawPrincipalAxis() {
+            ctx.beginPath();
+            ctx.moveTo(0, ORIGIN_Y);
+            ctx.lineTo(CANVAS_WIDTH, ORIGIN_Y);
+            ctx.strokeStyle = '#64748b'; // Slightly lighter gray for axis
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        /**
+         * Draws the optic (mirror or lens).
+         */
+        function drawOptic() {
+            ctx.strokeStyle = '#3b82f6'; // Brighter blue
+            ctx.lineWidth = 4; // Thicker optic line
+
+            // Draw optic line
+            ctx.beginPath();
+            ctx.moveTo(ORIGIN_X, 0);
+            ctx.lineTo(ORIGIN_X, CANVAS_HEIGHT);
+            ctx.stroke();
+
+            // Draw optic shape (curve for mirrors/lenses)
+            if (opticType === 'mirror') {
+                ctx.beginPath();
+                if (opticShape === 'concave') {
+                    // Concave mirror: curve towards object, reflective side is inner
+                    ctx.arc(ORIGIN_X + focalLength * 2, ORIGIN_Y, focalLength * 2, Math.PI / 2, 3 * Math.PI / 2);
+                    // Add hatching for non-reflective side
+                    for (let i = -100; i <= 100; i += 10) {
+                        const angle = (i * Math.PI / 100) + Math.PI / 2; // Angle from top to bottom of arc
+                        const x = ORIGIN_X + (focalLength * 2) + (focalLength * 2) * Math.cos(angle);
+                        const y = ORIGIN_Y + (focalLength * 2) * Math.sin(angle);
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + 10 * Math.cos(angle + Math.PI / 4), y + 10 * Math.sin(angle + Math.PI / 4));
+                    }
+                } else if (opticShape === 'convex') {
+                    // Convex mirror: curve away from object, reflective side is outer
+                    ctx.arc(ORIGIN_X - focalLength * 2, ORIGIN_Y, focalLength * 2, -Math.PI / 2, Math.PI / 2);
+                    // Add hatching for non-reflective side
+                    for (let i = -100; i <= 100; i += 10) {
+                        const angle = (i * Math.PI / 100) - Math.PI / 2; // Angle from top to bottom of arc
+                        const x = ORIGIN_X - (focalLength * 2) + (focalLength * 2) * Math.cos(angle);
+                        const y = ORIGIN_Y + (focalLength * 2) * Math.sin(angle);
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + 10 * Math.cos(angle - Math.PI / 4), y + 10 * Math.sin(angle - Math.PI / 4));
+                    }
+                }
+                ctx.stroke();
+            } else { // Lens
+                ctx.beginPath();
+                if (opticShape === 'convex') {
+                    // Convex lens shape (double convex)
+                    ctx.moveTo(ORIGIN_X, ORIGIN_Y - 100);
+                    ctx.bezierCurveTo(ORIGIN_X + 25, ORIGIN_Y - 50, ORIGIN_X + 25, ORIGIN_Y + 50, ORIGIN_X, ORIGIN_Y + 100);
+                    ctx.moveTo(ORIGIN_X, ORIGIN_Y - 100);
+                    ctx.bezierCurveTo(ORIGIN_X - 25, ORIGIN_Y - 50, ORIGIN_X - 25, ORIGIN_Y + 50, ORIGIN_X, ORIGIN_Y + 100);
+                } else if (opticShape === 'concave') {
+                    // Concave lens shape (double concave)
+                    ctx.moveTo(ORIGIN_X, ORIGIN_Y - 100);
+                    ctx.bezierCurveTo(ORIGIN_X - 25, ORIGIN_Y - 50, ORIGIN_X - 25, ORIGIN_Y + 50, ORIGIN_X, ORIGIN_Y + 100);
+                    ctx.moveTo(ORIGIN_X, ORIGIN_Y - 100);
+                    ctx.bezierCurveTo(ORIGIN_X + 25, ORIGIN_Y - 50, ORIGIN_X + 25, ORIGIN_Y + 50, ORIGIN_X, ORIGIN_Y + 100);
+                }
+                ctx.stroke();
+            }
+        }
+
+        /**
+         * Draws focal points (F) and center of curvature (C/2F).
+         */
+        function drawFocalPoints() {
+            ctx.fillStyle = '#ef4444'; // Red for points
+            ctx.font = '16px Inter'; // Larger font
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Focal points
+            const f1X = ORIGIN_X - focalLength;
+            const f2X = ORIGIN_X + focalLength;
+            const c1X = ORIGIN_X - 2 * focalLength;
+            const c2X = ORIGIN_X + 2 * focalLength;
+
+            ctx.beginPath();
+            ctx.arc(f1X, ORIGIN_Y, 5, 0, 2 * Math.PI); ctx.fill(); // Larger dot
+            ctx.fillText('F', f1X, ORIGIN_Y + 20); // Adjusted text position
+
+            ctx.beginPath();
+            ctx.arc(f2X, ORIGIN_Y, 5, 0, 2 * Math.PI); ctx.fill(); // Larger dot
+            ctx.fillText('F', f2X, ORIGIN_Y + 20); // Adjusted text position
+
+            if (opticType === 'mirror') {
+                ctx.beginPath();
+                ctx.arc(c1X, ORIGIN_Y, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillText('C', c1X, ORIGIN_Y + 20);
+
+                ctx.beginPath();
+                ctx.arc(c2X, ORIGIN_Y, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillText('C', c2X, ORIGIN_Y + 20);
+            } else { // Lens, use 2F
+                ctx.beginPath();
+                ctx.arc(c1X, ORIGIN_Y, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillText('2F', c1X, ORIGIN_Y + 20);
+
+                ctx.beginPath();
+                ctx.arc(c2X, ORIGIN_Y, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillText('2F', c2X, ORIGIN_Y + 20);
+            }
+        }
+
+        /**
+         * Draws the object (an arrow).
+         */
+        function drawObject() {
+            ctx.strokeStyle = '#10b981'; // Brighter green for object
+            ctx.lineWidth = 2.5; // Thicker line
+            ctx.fillStyle = '#10b981';
+            ctx.font = '16px Inter';
+
+            ctx.beginPath();
+            ctx.moveTo(objectX, ORIGIN_Y);
+            ctx.lineTo(objectX, ORIGIN_Y - objectHeight);
+            drawArrowHead(ctx, objectX, ORIGIN_Y, objectX, ORIGIN_Y - objectHeight, 10); // Larger arrow head
+            ctx.stroke();
+            ctx.fillText('Object', objectX, ORIGIN_Y - objectHeight - 15); // Adjusted text position
+        }
+
+        /**
+         * Performs ray tracing based on optic type and shape.
+         */
+        function rayTrace() {
+            const u = canvasXToPhysicsU(objectX); // Object distance from optic center
+            const h_o = objectHeight; // Object height
+
+            let imageV = NaN; // Image distance
+            let imageH = NaN; // Image height (magnification)
+
+            // Mirror/Lens Formula: 1/f = 1/v + 1/u
+            // For lenses, f is positive for convex, negative for concave.
+            // For mirrors, f is positive for concave, negative for convex.
+            let effectiveFocalLength = focalLength;
+            if (opticType === 'mirror') {
+                if (opticShape === 'convex') {
+                    effectiveFocalLength = -focalLength;
+                }
+            } else { // Lens
+                if (opticShape === 'concave') {
+                    effectiveFocalLength = -focalLength;
+                }
+            }
+
+            // Calculate image distance (v)
+            if (opticShape === 'plane') { // Special case for plane mirror/lens (infinite focal length)
+                imageV = -u; // For plane mirror/lens, image is at same distance behind/in front
+                imageH = h_o; // Image is same size
+            } else if (Math.abs(u) < 0.1) { // Object very close to optic (avoid division by zero)
+                imageV = Infinity;
+                imageH = Infinity;
+            } else if (Math.abs(u - effectiveFocalLength) < 0.1) { // Object at focal point
+                imageV = Infinity;
+                imageH = Infinity;
+            } else {
+                imageV = 1 / (1 / effectiveFocalLength - 1 / u);
+                // Calculate image height (magnification)
+                imageH = -imageV / u * h_o;
+            }
+
+
+            const imageX = physicsVToCanvasX(imageV);
+
+            // --- Draw Rays ---
+            ctx.strokeStyle = '#a855f7'; // Slightly brighter purple for rays
+            ctx.lineWidth = 2; // Thicker rays
+
+            // Ray 1: Parallel to principal axis
+            const ray1StartY = ORIGIN_Y - h_o;
+            ctx.beginPath();
+            ctx.moveTo(objectX, ray1StartY);
+            ctx.lineTo(ORIGIN_X, ray1StartY); // Incident ray
+            ctx.stroke();
+
+            let ray1EndRefractedX = 0;
+            let ray1EndRefractedY = 0;
+
+            if (opticType === 'mirror') {
+                if (opticShape === 'concave') {
+                    // Ray parallel to principal axis passes through focal point F
+                    ray1EndRefractedX = ORIGIN_X + effectiveFocalLength;
+                    ray1EndRefractedY = ORIGIN_Y;
+                    ctx.beginPath();
+                    ctx.moveTo(ORIGIN_X, ray1StartY);
+                    ctx.lineTo(ray1EndRefractedX, ray1EndRefractedY);
+                    ctx.stroke();
+                } else if (opticShape === 'convex') {
+                    // Ray parallel to principal axis appears to diverge from focal point F
+                    const fX = ORIGIN_X + effectiveFocalLength; // Focal point for convex mirror is behind
+                    const slope = (ray1StartY - ORIGIN_Y) / (ORIGIN_X - fX);
+                    ray1EndRefractedX = CANVAS_WIDTH; // Extend to right edge
+                    ray1EndRefractedY = ORIGIN_Y + slope * (ray1EndRefractedX - fX);
+
+                    ctx.beginPath();
+                    ctx.moveTo(ORIGIN_X, ray1StartY);
+                    ctx.lineTo(ray1EndRefractedX, ray1EndRefractedY);
+                    ctx.stroke();
+                    drawDashedLine(ctx, ORIGIN_X, ray1StartY, fX, ORIGIN_Y, [5, 5]); // Dashed extension to F
+                } else { // Plane mirror
+                    ray1EndRefractedX = ORIGIN_X + (ORIGIN_X - objectX);
+                    ray1EndRefractedY = ray1StartY;
+                    ctx.beginPath();
+                    ctx.moveTo(ORIGIN_X, ray1StartY);
+                    ctx.lineTo(ray1EndRefractedX, ray1EndRefractedY);
+                    ctx.stroke();
+                }
+            } else { // Lens
+                if (opticShape === 'convex') {
+                    // Ray parallel to principal axis passes through focal point F2
+                    ray1EndRefractedX = CANVAS_WIDTH;
+                    ray1EndRefractedY = ORIGIN_Y + (ray1StartY - ORIGIN_Y) * (CANVAS_WIDTH - (ORIGIN_X + effectiveFocalLength)) / (ORIGIN_X - (ORIGIN_X + effectiveFocalLength));
+                    ctx.beginPath();
+                    ctx.moveTo(ORIGIN_X, ray1StartY);
+                    ctx.lineTo(ORIGIN_X + effectiveFocalLength, ORIGIN_Y); // Guide to F2
+                    ctx.lineTo(ray1EndRefractedX, ray1EndRefractedY);
+                    ctx.stroke();
+                } else if (opticShape === 'concave') {
+                    // Ray parallel to principal axis appears to diverge from focal point F1
+                    const fX = ORIGIN_X + effectiveFocalLength; // Focal point for concave lens is on same side
+                    const slope = (ray1StartY - ORIGIN_Y) / (ORIGIN_X - fX);
+                    ray1EndRefractedX = CANVAS_WIDTH; // Extend to right edge
+                    ray1EndRefractedY = ORIGIN_Y + slope * (CANVAS_WIDTH - fX);
+
+                    ctx.beginPath();
+                    ctx.moveTo(ORIGIN_X, ray1StartY);
+                    ctx.lineTo(ray1EndRefractedX, ray1EndRefractedY);
+                    ctx.stroke();
+                    drawDashedLine(ctx, ORIGIN_X, ray1StartY, fX, ORIGIN_Y, [5, 5]); // Dashed extension to F1
+                } else { // Plane lens (no standard behavior for parallel ray)
+                    ray1EndRefractedX = CANVAS_WIDTH;
+                    ray1EndRefractedY = ray1StartY;
+                    ctx.beginPath();
+                    ctx.moveTo(ORIGIN_X, ray1StartY);
+                    ctx.lineTo(ray1EndRefractedX, ray1EndRefractedY);
+                    ctx.stroke();
+                }
+            }
+
+            // Ray 2: Through F (or towards F)
+            ctx.beginPath();
+            ctx.moveTo(objectX, ORIGIN_Y - h_o);
+            let ray2IncidentTargetX = 0;
+            if (opticType === 'mirror') {
+                if (opticShape === 'concave') {
+                    ray2IncidentTargetX = ORIGIN_X + effectiveFocalLength; // Through F
+                } else if (opticShape === 'convex') {
+                    ray2IncidentTargetX = ORIGIN_X + effectiveFocalLength; // Towards F
+                } else { // Plane mirror
+                    ray2IncidentTargetX = objectX; // Dummy target for plane
+                }
+            } else { // Lens
+                if (opticShape === 'convex') {
+                    ray2IncidentTargetX = ORIGIN_X - effectiveFocalLength; // Through F1
+                } else if (opticShape === 'concave') {
+                    ray2IncidentTargetX = ORIGIN_X - effectiveFocalLength; // Towards F1
+                } else { // Plane lens
+                    ray2IncidentTargetX = objectX; // Dummy target for plane
+                }
+            }
+
+            // Calculate intersection with optic plane for incident ray 2
+            let ray2OpticY = ORIGIN_Y - h_o;
+            if (opticShape !== 'plane') { // For curved optics, ray hits optic at different Y
+                const m_inc = (ORIGIN_Y - h_o - ORIGIN_Y) / (objectX - ray2IncidentTargetX);
+                ray2OpticY = ORIGIN_Y - h_o + m_inc * (ORIGIN_X - objectX);
+            }
+
+            ctx.lineTo(ORIGIN_X, ray2OpticY); // Incident ray
+            ctx.stroke();
+
+            // Reflected/Refracted Ray 2
+            let ray2EndRefractedX = 0;
+            let ray2EndRefractedY = 0;
+
+            if (opticType === 'mirror') {
+                if (opticShape === 'concave' || opticShape === 'convex') {
+                    // Ray through F (or towards F) becomes parallel to principal axis
+                    ray2EndRefractedX = CANVAS_WIDTH;
+                    ray2EndRefractedY = ORIGIN_Y;
+                } else { // Plane mirror
+                    ray2EndRefractedX = ORIGIN_X + (ORIGIN_X - objectX);
+                    ray2EndRefractedY = ORIGIN_Y - h_o;
+                }
+                ctx.beginPath();
+                ctx.moveTo(ORIGIN_X, ray2OpticY);
+                ctx.lineTo(ray2EndRefractedX, ray2EndRefractedY);
+                ctx.stroke();
+            } else { // Lens
+                if (opticShape === 'convex' || opticShape === 'concave') {
+                    // Ray through F (or towards F) becomes parallel to principal axis
+                    ray2EndRefractedX = CANVAS_WIDTH;
+                    ray2EndRefractedY = ORIGIN_Y;
+                } else { // Plane lens
+                    ray2EndRefractedX = CANVAS_WIDTH;
+                    ray2EndRefractedY = ORIGIN_Y - h_o;
+                }
+                ctx.beginPath();
+                ctx.moveTo(ORIGIN_X, ray2OpticY);
+                ctx.lineTo(ray2EndRefractedX, ray2EndRefractedY);
+                ctx.stroke();
+            }
+
+            // Ray 3: Through C (mirror) or Optical Center (lens)
+            ctx.beginPath();
+            ctx.moveTo(objectX, ORIGIN_Y - h_o);
+            let ray3OpticX = ORIGIN_X;
+            let ray3OpticY = ORIGIN_Y; // For optical center
+
+            if (opticType === 'mirror') {
+                const cX = ORIGIN_X + 2 * effectiveFocalLength; // C for concave, -C for convex
+                // Calculate intersection with optic plane for ray through C
+                // This ray goes from object through C and hits the mirror.
+                const slope_inc = (ORIGIN_Y - h_o - ORIGIN_Y) / (objectX - cX);
+                ray3OpticY = ORIGIN_Y - h_o + slope_inc * (ORIGIN_X - objectX);
+
+                ctx.lineTo(ray3OpticX, ray3OpticY); // Incident ray
+                ctx.stroke();
+
+                // Ray through C reflects back along the same path
+                ctx.beginPath();
+                ctx.moveTo(ray3OpticX, ray3OpticY);
+                ctx.lineTo(objectX, ORIGIN_Y - h_o); // Reflects back towards object
+                ctx.stroke();
+            } else { // Lens
+                // Ray through optical center goes undeviated
+                ctx.lineTo(ORIGIN_X, ORIGIN_Y); // Incident ray to optical center
+                ctx.lineTo(CANVAS_WIDTH, ORIGIN_Y + (ORIGIN_Y - (ORIGIN_Y - h_o)) * (CANVAS_WIDTH - ORIGIN_X) / (ORIGIN_X - objectX)); // Undeviated ray
+                ctx.stroke();
+            }
+
+
+            // --- Draw Image ---
+            ctx.strokeStyle = '#f97316'; // Orange for image
+            ctx.lineWidth = 2.5; // Thicker image arrow
+            ctx.fillStyle = '#f97316';
+            ctx.font = '16px Inter';
+
+            // Determine image properties
+            let imageNature = '';
+            let imageOrientation = '';
+            let imageSize = '';
+
+            if (isNaN(imageV) || Math.abs(imageV) > 1000 || Math.abs(imageH) > CANVAS_HEIGHT * 2) { // Handle very distant, very large, or no image
+                imagePropertiesDisplay.textContent = 'Image: No clear image formed (e.g., object at focal point or plane optic)';
+                return;
+            }
+
+            // Nature (Real/Virtual)
+            if (opticType === 'mirror') {
+                imageNature = (imageV < 0) ? 'Real' : 'Virtual'; // Real in front (negative v), Virtual behind (positive v)
+            } else { // Lens
+                imageNature = (imageV > 0) ? 'Real' : 'Virtual'; // Real on opposite side (positive v), Virtual on same side (negative v)
+            }
+
+            // Orientation (Inverted/Erect)
+            imageOrientation = (imageH * h_o < 0) ? 'Inverted' : 'Erect'; // Sign opposite means inverted
+
+            // Size (Magnified/Diminished/Same Size)
+            const magnification = Math.abs(imageH / h_o);
+            if (magnification > 1.05) { // Small tolerance for "same size"
+                imageSize = 'Magnified';
+            } else if (magnification < 0.95) {
+                imageSize = 'Diminished';
+            } else {
+                imageSize = 'Same Size';
+            }
+
+            imagePropertiesDisplay.textContent = `Image: ${imageNature}, ${imageOrientation}, ${imageSize}`;
+
+            // Draw image arrow
+            ctx.beginPath();
+            ctx.moveTo(imageX, ORIGIN_Y);
+            ctx.lineTo(imageX, ORIGIN_Y - imageH);
+            drawArrowHead(ctx, imageX, ORIGIN_Y, imageX, ORIGIN_Y - imageH, 10); // Larger arrow head
+            ctx.stroke();
+            ctx.fillText('Image', imageX, ORIGIN_Y - imageH - 15); // Adjusted text position
+        }
+
+        /**
+         * Clears the canvas and redraws all elements.
+         */
+        function draw() {
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            drawPrincipalAxis();
+            drawOptic();
+            drawFocalPoints();
+            drawObject();
+            rayTrace();
+        }
+
+        // --- Event Listeners ---
+
+        // Home button functionality (can be expanded later)
+        homeBtn.addEventListener('click', () => {
+            // Reset to initial state or navigate to a home page
+            opticType = 'mirror';
+            opticShape = 'concave';
+            focalLength = 80;
+            objectX = ORIGIN_X - 200;
+
+            // Reset UI elements
+            mirrorBtn.classList.add('active');
+            lensBtn.classList.remove('active');
+            concaveBtn.classList.add('active');
+            convexBtn.classList.remove('active');
+            planeBtn.classList.remove('active');
+            planeBtn.style.display = 'inline-block'; // Ensure plane button is visible for mirrors
+
+            focalLengthSlider.value = focalLength;
+            focalLengthValueSpan.textContent = focalLength;
+            objectPositionSlider.value = objectX;
+            objectPositionValueSpan.textContent = objectX - ORIGIN_X;
+
+            draw();
+        });
+
+
+        mirrorBtn.addEventListener('click', () => {
+            opticType = 'mirror';
+            mirrorBtn.classList.add('active');
+            lensBtn.classList.remove('active');
+            planeBtn.style.display = 'inline-block'; // Show plane for mirrors
+            draw();
+        });
+
+        lensBtn.addEventListener('click', () => {
+            opticType = 'lens';
+            lensBtn.classList.add('active');
+            mirrorBtn.classList.remove('active');
+            planeBtn.style.display = 'none'; // Hide plane for lenses (not standard)
+            if (opticShape === 'plane') opticShape = 'convex'; // Default to convex if plane was selected
+            concaveBtn.classList.remove('active');
+            convexBtn.classList.add('active');
+            draw();
+        });
+
+        concaveBtn.addEventListener('click', () => {
+            opticShape = 'concave';
+            concaveBtn.classList.add('active');
+            convexBtn.classList.remove('active');
+            planeBtn.classList.remove('active');
+            draw();
+        });
+
+        convexBtn.addEventListener('click', () => {
+            opticShape = 'convex';
+            convexBtn.classList.add('active');
+            concaveBtn.classList.remove('active');
+            planeBtn.classList.remove('active');
+            draw();
+        });
+
+        planeBtn.addEventListener('click', () => {
+            opticShape = 'plane';
+            planeBtn.classList.add('active');
+            concaveBtn.classList.remove('active');
+            convexBtn.classList.remove('active');
+            draw();
+        });
+
+        focalLengthSlider.addEventListener('input', (event) => {
+            focalLength = parseInt(event.target.value);
+            focalLengthValueSpan.textContent = focalLength;
+            draw();
+        });
+
+        // Object position slider event listener
+        objectPositionSlider.addEventListener('input', (event) => {
+            objectX = parseInt(event.target.value);
+            objectPositionValueSpan.textContent = objectX - ORIGIN_X; // Display relative position
+            draw();
+        });
+
+        // Initial setup
+        focalLengthValueSpan.textContent = focalLength;
+        objectPositionValueSpan.textContent = objectX - ORIGIN_X; // Display initial relative position
+        draw();
+    </script>
+</body>
+</html>
